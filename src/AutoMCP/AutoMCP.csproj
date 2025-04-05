@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>netstandard2.0;net8.0;net9.0</TargetFrameworks>
+        <ImplicitUsings>enable</ImplicitUsings>
+        <Nullable>enable</Nullable>
+        <AssemblyName>AutoMCP</AssemblyName>
+        <RootNamespace>AutoMCP</RootNamespace>
+        <LangVersion>latest</LangVersion>
+    </PropertyGroup>
+
+    <!-- Dependencies only needed by netstandard2.0 -->
+    <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">       
+        <PackageReference Include="Microsoft.Bcl.Async" Version="1.0.168" />
+    </ItemGroup>
+    
+    <ItemGroup>
+        <PackageReference Include="Microsoft.OpenApi.Readers" Version="2.0.0-preview9" />
+        <PackageReference Include="Microsoft.OpenApi.YamlReader" Version="2.0.0-preview.16" />
+        <PackageReference Include="ModelContextProtocol" Version="0.1.0-preview.6" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Remove="Base\MCPServer.cs" />
+      <Compile Remove="Helpers\MCPServer.cs" />
+    </ItemGroup>
+</Project>
