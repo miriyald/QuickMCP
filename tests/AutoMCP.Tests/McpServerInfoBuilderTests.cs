@@ -37,7 +37,7 @@ public class McpServerInfoBuilderTests
     public async Task OpenApiTest(string fileName)
     {
         var path = $"specs/{fileName}";
-        var serverInfo = await McpServerBuilder.ForOpenApi().FromFile(path).BuildAsync();
+        var serverInfo = await McpServerInfoBuilder.ForOpenApi().FromFile(path).BuildAsync();
         // Assert the builder contains some tools
         serverInfo.Tools.Count.ShouldBeGreaterThan(0);
 
@@ -49,7 +49,7 @@ public class McpServerInfoBuilderTests
             // Assert simple properties are not null or empty
             tool.Value.Method.ShouldNotBeNullOrEmpty();
             tool.Value.Url.ShouldNotBeNullOrEmpty();
-            tool.Value.ContentType.ShouldNotBeNullOrEmpty();
+            tool.Value.MimeType.ShouldNotBeNullOrEmpty();
 
             // Assert metadata properties using ShouldSatisfyAllConditions
             tool.Value.Metadata.ShouldSatisfyAllConditions(
@@ -74,7 +74,7 @@ public class McpServerInfoBuilderTests
             Console.WriteLine(tool.Key);
             Console.WriteLine($"Method: {tool.Value.Method}");
             Console.WriteLine($"Url: {tool.Value.Url}");
-            Console.WriteLine($"ContentType: {tool.Value.ContentType}");
+            Console.WriteLine($"ContentType: {tool.Value.MimeType}");
             Console.WriteLine($"Metadata.Name: {tool.Value.Metadata.Name}");
             Console.WriteLine($"Metadata.Description: {tool.Value.Metadata.Description}");
             Console.WriteLine($"Metadata.InputSchema: {tool.Value.Metadata.InputSchema}");
@@ -91,7 +91,7 @@ public class McpServerInfoBuilderTests
     public async Task GoogleDiscoveryTests(string url)
     {
         
-        var serverInfo = await McpServerBuilder.ForGoogleDiscovery().FromUrl(url).BuildAsync();
+        var serverInfo = await McpServerInfoBuilder.ForGoogleDiscovery().FromUrl(url).BuildAsync();
         // Assert the builder contains some tools
         serverInfo.Tools.Count.ShouldBeGreaterThan(0);
 
@@ -103,7 +103,7 @@ public class McpServerInfoBuilderTests
             // Assert simple properties are not null or empty
             tool.Value.Method.ShouldNotBeNullOrEmpty();
             tool.Value.Url.ShouldNotBeNullOrEmpty();
-            tool.Value.ContentType.ShouldNotBeNullOrEmpty();
+            tool.Value.MimeType.ShouldNotBeNullOrEmpty();
 
             // Assert metadata properties using ShouldSatisfyAllConditions
             tool.Value.Metadata.ShouldSatisfyAllConditions(
@@ -128,7 +128,7 @@ public class McpServerInfoBuilderTests
             Console.WriteLine(tool.Key);
             Console.WriteLine($"Method: {tool.Value.Method}");
             Console.WriteLine($"Url: {tool.Value.Url}");
-            Console.WriteLine($"ContentType: {tool.Value.ContentType}");
+            Console.WriteLine($"ContentType: {tool.Value.MimeType}");
             Console.WriteLine($"Metadata.Name: {tool.Value.Metadata.Name}");
             Console.WriteLine($"Metadata.Description: {tool.Value.Metadata.Description}");
             Console.WriteLine($"Metadata.InputSchema: {tool.Value.Metadata.InputSchema}");

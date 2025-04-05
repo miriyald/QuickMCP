@@ -66,15 +66,7 @@ public class OpenApiMcpServerInfoBuilder : HttpMcpServerInfoBuilder
         try
         {
             // Load OpenAPI specification from the appropriate source
-            if (!string.IsNullOrEmpty(_openApiUrl))
-            {
-                _openApiDocument = await LoadOpenApiFromUrlAsync(_openApiUrl);
-            }
-            else if (!string.IsNullOrEmpty(_openApiFilePath))
-            {
-                _openApiDocument = await LoadOpenApiFromFileAsync(_openApiFilePath);
-            }
-            else if (!string.IsNullOrEmpty(_configFilePath))
+            if (!string.IsNullOrEmpty(_configFilePath))
             {
                 var config = await LoadConfigurationAsync<BuilderConfig>(_configFilePath);
                 if (config != null)
@@ -82,14 +74,22 @@ public class OpenApiMcpServerInfoBuilder : HttpMcpServerInfoBuilder
                     return await ProcessConfigurationAsync(config);
                 }
             }
-
+            else if (!string.IsNullOrEmpty(_openApiUrl))
+            {
+                _openApiDocument = await LoadOpenApiFromUrlAsync(_openApiUrl);
+            }
+            else if (!string.IsNullOrEmpty(_openApiFilePath))
+            {
+                _openApiDocument = await LoadOpenApiFromFileAsync(_openApiFilePath);
+            }
+            
             if (_openApiDocument == null)
             {
                 Logger?.LogWarning("No OpenAPI document was loaded. No tools will be registered.");
                 return CreateToolCollection();
             }
 
-            await ProcessOpenApiDocumentAsync(_openApiDocument);
+            ProcessOpenApiDocumentAsync(_openApiDocument);
 
             // Generate resources if enabled
             if (GenerateResourcesFlag)
@@ -178,21 +178,7 @@ public class OpenApiMcpServerInfoBuilder : HttpMcpServerInfoBuilder
     {
         try
         {
-            // Use server name and description from config if provided
-            if (!string.IsNullOrEmpty(config.ServerName))
-            {
-                ServerName = config.ServerName;
-            }
-
-            if (!string.IsNullOrEmpty(config.ServerDescription))
-            {
-                ServerDescription = config.ServerDescription;
-            }
-
-            // Set resource and prompt generation flags from config
-            GenerateResourcesFlag = config.GenerateResources;
-            GeneratePromptsFlag = config.GeneratePrompts;
-
+            InitializeFromConfig(config);
             // Set up authentication if configured
             if (config.Authentication != null)
             {
@@ -203,21 +189,26 @@ public class OpenApiMcpServerInfoBuilder : HttpMcpServerInfoBuilder
             if (!string.IsNullOrEmpty(config.ApiSpecUrl))
             {
                 _openApiDocument = await LoadOpenApiFromUrlAsync(config.ApiSpecUrl);
-                if (_openApiDocument != null)
+            }
+            else if (!string.IsNullOrEmpty(config.ApiSpecPath))
+            {
+                _openApiDocument = await LoadOpenApiFromFileAsync(config.ApiSpecPath);
+            }
+            
+            if (_openApiDocument != null)
+            {
+                ProcessOpenApiDocumentAsync(_openApiDocument);
+
+                // Generate resources if enabled
+                if (GenerateResourcesFlag)
                 {
-                    await ProcessOpenApiDocumentAsync(_openApiDocument);
+                    RegisterResources(_openApiDocument);
+                }
 
-                    // Generate resources if enabled
-                    if (GenerateResourcesFlag)
-                    {
-                        RegisterResources(_openApiDocument);
-                    }
-
-                    // Generate prompts if enabled
-                    if (GeneratePromptsFlag)
-                    {
-                        GeneratePrompts(_openApiDocument);
-                    }
+                // Generate prompts if enabled
+                if (GeneratePromptsFlag)
+                {
+                    GeneratePrompts(_openApiDocument);
                 }
             }
 
@@ -232,7 +223,8 @@ public class OpenApiMcpServerInfoBuilder : HttpMcpServerInfoBuilder
         }
     }
 
-    private async Task ProcessOpenApiDocumentAsync(OpenApiDocument openApiDoc)
+  
+    private void ProcessOpenApiDocumentAsync(OpenApiDocument openApiDoc)
     {
         try
         {
@@ -244,7 +236,7 @@ public class OpenApiMcpServerInfoBuilder : HttpMcpServerInfoBuilder
                 return;
             }
 
-            var serverUrl = DetermineServerUrl(openApiDoc);
+            _baseUrl = DetermineServerUrl(openApiDoc);
             var operationsInfo = ExtractOperationsInfo(openApiDoc);
 
             // Apply filters
@@ -267,7 +259,7 @@ public class OpenApiMcpServerInfoBuilder : HttpMcpServerInfoBuilder
                 }
                 catch (Exception ex)
                 {
-                    Logger.LogError(ex, "Failed to register tool for operation {OperationId}", opId);
+                    Logger?.LogError(ex, "Failed to register tool for operation {OperationId}", opId);
                 }
             }
 
@@ -283,12 +275,14 @@ public class OpenApiMcpServerInfoBuilder : HttpMcpServerInfoBuilder
     private string DetermineServerUrl(OpenApiDocument openApiDoc)
     {
         // Extract server URL from the OpenAPI document
+        if (!string.IsNullOrEmpty(_baseUrl))
+            return _baseUrl;
         if (openApiDoc.Servers != null && openApiDoc.Servers.Count > 0)
         {
             return openApiDoc.Servers[0].Url;
         }
 
-        return "https://api.example.com"; // Default fallback
+        throw new Exception("No server URL found in OpenAPI document, please specify a base URL.");
     }
 
     private Dictionary<string, OperationInfo> ExtractOperationsInfo(OpenApiDocument openApiDoc)

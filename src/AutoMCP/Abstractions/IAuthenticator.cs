@@ -23,4 +23,5 @@ public interface IAuthenticator
     /// </summary>
     /// <returns>True if authentication is available and valid</returns>
     Task<bool> IsAuthenticatedAsync();
+    
 }

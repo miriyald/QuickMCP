@@ -24,8 +24,4 @@
       <Compile Remove="Base\MCPServer.cs" />
       <Compile Remove="Helpers\MCPServer.cs" />
     </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Server\" />
-    </ItemGroup>
 </Project>

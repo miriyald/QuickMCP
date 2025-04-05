@@ -17,7 +17,7 @@ namespace AutoMCP.Builders;
 /// <summary>
 /// Implementation of IMcpServerBuilder for Google Discovery API specifications
 /// </summary>
-public class GoogleDiscoveryMcpServerInfoBuilder : BaseMcpServerInfoBuilder
+public class GoogleDiscoveryMcpServerInfoBuilder : HttpMcpServerInfoBuilder
 {
     private string? _discoveryUrl;
     private string? _discoveryFilePath;
@@ -163,46 +163,33 @@ public class GoogleDiscoveryMcpServerInfoBuilder : BaseMcpServerInfoBuilder
     {
         try
         {
-            // Use server name and description from config if provided
-            if (!string.IsNullOrEmpty(config.ServerName))
-            {
-                ServerName = config.ServerName;
-            }
-
-            if (!string.IsNullOrEmpty(config.ServerDescription))
-            {
-                ServerDescription = config.ServerDescription;
-            }
-
-            // Set resource and prompt generation flags from config
-            GenerateResourcesFlag = config.GenerateResources;
-            GeneratePromptsFlag = config.GeneratePrompts;
-
-            // Set up authentication if configured
-            if (config.Authentication != null)
-            {
-                Authenticator = AuthenticatorFactory.Create(config.Authentication);
-            }
-
+           
+            InitializeFromConfig(config);
             // Process Discovery URL if provided
             if (!string.IsNullOrEmpty(config.ApiSpecUrl))
             {
                 _discoveryDocument = await LoadDiscoveryFromUrlAsync(config.ApiSpecUrl);
-                if (_discoveryDocument != null)
+            }
+            else if (!string.IsNullOrEmpty(config.ApiSpecPath))
+            {
+                _discoveryDocument = await LoadDiscoveryFromFileAsync(config.ApiSpecPath);
+            }
+            else throw new ArgumentException("No API specification URL or path provided");
+            
+            if (_discoveryDocument != null)
+            {
+                await ProcessDiscoveryDocumentAsync(_discoveryDocument);
+
+                // Generate resources if enabled
+                if (GenerateResourcesFlag)
                 {
-                    await ProcessDiscoveryDocumentAsync(_discoveryDocument);
+                    RegisterResources(_discoveryDocument);
+                }
 
-                    // Generate resources if enabled
-                    if (GenerateResourcesFlag)
-                    {
-                        RegisterResources(_discoveryDocument);
-                    }
-
-                    // Generate prompts if enabled
-                    if (GeneratePromptsFlag)
-                    {
-                        GeneratePrompts(_discoveryDocument);
-                    }
+                // Generate prompts if enabled
+                if (GeneratePromptsFlag)
+                {
+                    GeneratePrompts(_discoveryDocument);
                 }
             }
            
@@ -521,10 +508,6 @@ public class GoogleDiscoveryMcpServerInfoBuilder : BaseMcpServerInfoBuilder
         if (info.ResponseSchema != null)
         {
             metadata.ResponseSchema = info.ResponseSchema;
-        }
-        else
-        {
-            
         }
 
         return metadata;

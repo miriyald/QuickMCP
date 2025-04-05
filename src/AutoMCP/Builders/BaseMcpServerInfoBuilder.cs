@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using AutoMCP.Abstractions;
 using AutoMCP.Helpers;
+using AutoMCP.Http;
 using AutoMCP.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -18,6 +19,7 @@ public abstract class BaseMcpServerInfoBuilder : IMcpServerInfoBuilder
     {
         OpenApiReaderRegistry.RegisterReader("yaml", new OpenApiYamlReader());
     }
+
     protected string ServerName;
     protected string ServerDescription;
     protected ILogger? Logger;
@@ -27,10 +29,17 @@ public abstract class BaseMcpServerInfoBuilder : IMcpServerInfoBuilder
     protected IAuthenticator? Authenticator;
     protected Func<string, bool>? PathExclusionFunc;
     protected Func<string, bool>? PathInclusionFunc;
-    protected HashSet<string>? ExcludedOperationIds;
-    protected HashSet<string>? IncludedOperationIds;
+    protected List<string> ExcludedOperationIds = new List<string>();
+    protected List<string> IncludedOperationIds = new List<string>();
     protected bool GenerateResourcesFlag = true;
     protected bool GeneratePromptsFlag = true;
+
+    protected readonly Dictionary<string, string> _defaultHeaders = new Dictionary<string, string>();
+    protected readonly Dictionary<string, string> _defaultPathParams = new Dictionary<string, string>();
+    protected TimeSpan _timeout = TimeSpan.FromSeconds(30);
+    protected HttpClient _httpClient;
+
+    protected string _baseUrl;
 
     protected readonly Dictionary<string, ToolInfo> RegisteredTools;
     protected readonly Dictionary<string, ResourceInfo> RegisteredResources;
@@ -79,9 +88,9 @@ public abstract class BaseMcpServerInfoBuilder : IMcpServerInfoBuilder
     }
 
     /// <inheritdoc />
-    public virtual IMcpServerInfoBuilder ExcludePaths(IEnumerable<string> operationIds)
+    public virtual IMcpServerInfoBuilder ExcludePaths(IEnumerable<string> paths)
     {
-        ExcludedOperationIds = new HashSet<string>(operationIds);
+        ExcludedOperationIds.AddRange(paths);
         Logger?.LogInformation("Excluded {Count} operation IDs", ExcludedOperationIds.Count);
         return this;
     }
@@ -97,8 +106,43 @@ public abstract class BaseMcpServerInfoBuilder : IMcpServerInfoBuilder
     /// <inheritdoc />
     public virtual IMcpServerInfoBuilder OnlyForPaths(IEnumerable<string> operationIds)
     {
-        IncludedOperationIds = new HashSet<string>(operationIds);
+        IncludedOperationIds.AddRange(operationIds);
         Logger?.LogInformation("Including only {Count} operation IDs", IncludedOperationIds.Count);
+        return this;
+    }
+
+    public IMcpServerInfoBuilder SetBaseUrl(string baseUrl)
+    {
+        this._baseUrl = baseUrl;
+        return this;
+    }
+
+    public IMcpServerInfoBuilder WithDefaultPathParams(Dictionary<string, string> defaultPathParams)
+    {
+        foreach (var param in defaultPathParams)
+        {
+            this._defaultPathParams[param.Key] = param.Value;
+        }
+
+        return this;
+    }
+
+    public IMcpServerInfoBuilder WithHttpClient(HttpClient httpClient)
+    {
+        _httpClient = httpClient;
+        return this;
+    }
+
+    public IMcpServerInfoBuilder WithDefaultHeader(string key, string value)
+    {
+        _defaultHeaders[key] = value;
+        return this;
+    }
+
+    // Sets the timeout for HTTP requests.
+    public IMcpServerInfoBuilder WithTimeout(TimeSpan timeout)
+    {
+        _timeout = timeout;
         return this;
     }
 
@@ -142,9 +186,9 @@ public abstract class BaseMcpServerInfoBuilder : IMcpServerInfoBuilder
     /// <typeparam name="T">The type of operations</typeparam>
     /// <param name="operations">Dictionary of operations to filter</param>
     /// <returns>The filtered dictionary</returns>
-    protected virtual Dictionary<string, T> FilterOperations<T>(Dictionary<string, T> operations)
+    protected virtual Dictionary<string, OperationInfo> FilterOperations(Dictionary<string, OperationInfo> operations)
     {
-        var result = new Dictionary<string, T>(operations);
+        var result = new Dictionary<string, OperationInfo>(operations);
 
         // Apply exclusion predicate
         if (PathExclusionFunc != null)
@@ -152,7 +196,7 @@ public abstract class BaseMcpServerInfoBuilder : IMcpServerInfoBuilder
             var keysToRemove = new List<string>();
             foreach (var key in result.Keys)
             {
-                if (PathExclusionFunc(key))
+                if (PathExclusionFunc(result[key].Path))
                 {
                     keysToRemove.Add(key);
                 }
@@ -170,7 +214,7 @@ public abstract class BaseMcpServerInfoBuilder : IMcpServerInfoBuilder
             var keysToKeep = new List<string>();
             foreach (var key in result.Keys)
             {
-                if (PathInclusionFunc(key))
+                if (PathInclusionFunc(result[key].Path))
                 {
                     keysToKeep.Add(key);
                 }
@@ -194,9 +238,11 @@ public abstract class BaseMcpServerInfoBuilder : IMcpServerInfoBuilder
         // Apply excluded operation IDs
         if (ExcludedOperationIds != null && ExcludedOperationIds.Count > 0)
         {
-            foreach (var opId in ExcludedOperationIds)
+            foreach (var opId in result.Keys)
             {
-                result.Remove(opId);
+                var value = result[opId];
+                if (ExcludedOperationIds.Any(s => value.Path.ToLower().Contains(s.ToLower())))
+                    result.Remove(opId);
             }
         }
 
@@ -206,9 +252,13 @@ public abstract class BaseMcpServerInfoBuilder : IMcpServerInfoBuilder
             var keysToRemove = new List<string>();
             foreach (var key in result.Keys)
             {
-                if (!IncludedOperationIds.Contains(key))
+                var value = result[key];
+                if (value is OperationInfo opInfo)
                 {
-                    keysToRemove.Add(key);
+                    if (!IncludedOperationIds.Any(s => opInfo.Path.ToLower().Contains(s.ToLower())))
+                    {
+                        keysToRemove.Add(key);
+                    }
                 }
             }
 
@@ -269,6 +319,7 @@ public abstract class BaseMcpServerInfoBuilder : IMcpServerInfoBuilder
             finalMetadata.ServerInfo = new ServerInfo() { Name = ServerName };
         }
 
+        function.Name = metadata.Name ?? safeName;
         function.Metadata = finalMetadata;
         RegisteredTools[safeName] = function;
     }
@@ -289,14 +340,15 @@ public abstract class BaseMcpServerInfoBuilder : IMcpServerInfoBuilder
             var param = parameters.FirstOrDefault(s => s.In == "body");
             if (param != null)
             {
-                contentType = param.ContentType?? "application/json";
+                contentType = param.ContentType ?? "application/json";
             }
         }
+
         var toolInfo = new ToolInfo()
         {
             Method = method,
             Url = url,
-            ContentType = contentType,
+            MimeType = contentType,
             Parameters = parameters
         };
         return toolInfo;
@@ -313,12 +365,12 @@ public abstract class BaseMcpServerInfoBuilder : IMcpServerInfoBuilder
         {
             Logger?.LogInformation("Loading configuration from: {ConfigPath}", configPath);
 
-            #if NETSTANDARD2_0_OR_GREATER
+#if NETSTANDARD2_0_OR_GREATER
             var configJson = File.ReadAllText(configPath);
-            #else
+#else
             var configJson = await File.ReadAllTextAsync(configPath);
-            #endif
-            var config = JsonSerializer.Deserialize<T>(configJson);
+#endif
+            var config = (T?)JsonSerializer.Deserialize(configJson, typeof(T), AutoMcpJsonSerializerContext.Default);
 
             if (config == null)
             {

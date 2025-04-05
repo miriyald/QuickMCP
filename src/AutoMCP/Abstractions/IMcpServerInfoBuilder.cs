@@ -72,6 +72,35 @@ public interface IMcpServerInfoBuilder
     IMcpServerInfoBuilder UseLogging(ILogger logger);
 
     /// <summary>
+    /// Configures default path parameters to be included in all requests
+    /// </summary>
+    /// <param name="defaultPathParams">A dictionary containing the default path parameters and their values</param>
+    /// <returns>A builder instance for method chaining</returns>
+    IMcpServerInfoBuilder WithDefaultPathParams(Dictionary<string, string> defaultPathParams);
+
+    /// <summary>
+    /// Sets the HTTP client to be used for making requests.
+    /// </summary>
+    /// <param name="httpClient">The HTTP client instance to use.</param>
+    /// <returns>A builder instance for method chaining.</returns>
+    IMcpServerInfoBuilder WithHttpClient(HttpClient httpClient);
+
+    /// <summary>
+    /// Adds a default header to be included in all HTTP requests.
+    /// </summary>
+    /// <param name="key">The header name.</param>
+    /// <param name="value">The header value.</param>
+    /// <returns>A builder instance for method chaining.</returns>
+    IMcpServerInfoBuilder WithDefaultHeader(string key, string value);
+
+    /// <summary>
+    /// Sets the timeout duration for HTTP requests.
+    /// </summary>
+    /// <param name="timeout">The timeout value.</param>
+    /// <returns>A builder instance for method chaining.</returns>
+    IMcpServerInfoBuilder WithTimeout(TimeSpan timeout);
+
+    /// <summary>
     /// Builds and registers all configured tools with the MCP server
     /// </summary>
     /// <returns>Task that completes when tools are registered</returns>

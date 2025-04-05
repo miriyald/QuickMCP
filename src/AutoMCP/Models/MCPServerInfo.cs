@@ -1,4 +1,9 @@
-﻿namespace AutoMCP.Models
+﻿using System.Collections;
+using AutoMCP.Http;
+using AutoMCP.Server;
+using ModelContextProtocol.Server;
+
+namespace AutoMCP.Models
 {
     /// <summary>
     /// Collection of MCP tools, resources, and prompts
@@ -46,6 +51,11 @@
         public int PromptCount => Prompts.Count;
 
         /// <summary>
+        /// The HTTP API caller responsible for executing HTTP requests.
+        /// </summary>
+        public HttpApiCaller HttpApiCaller { get; private set; }
+
+        /// <summary>
         /// Creates a new instance of MCPToolCollection
         /// </summary>
         public MCPServerInfo(
@@ -61,50 +71,18 @@
             Resources = resources;
             Prompts = prompts;
         }
-        
-        // /// <summary>
-        // /// Creates a new instance of MCPToolCollection from an MCPServer
-        // /// </summary>
-        // public static MCPToolCollection FromServer(
-        //     MCPServer server,
-        //     Dictionary<string, Prompt> prompts = null)
-        // {
-        //     return new MCPToolCollection(
-        //         server.ServerName,
-        //         "Tools generated from OpenAPI specification",
-        //         server.RegisteredTools,
-        //         server.RegisteredResources,
-        //         prompts ?? new Dictionary<string, Prompt>()
-        //     );
-        // }
-        
-        // /// <summary>
-        // /// Registers all tools, resources, and prompts with an MCPServer
-        // /// </summary>
-        // public void RegisterWithServer(FastMCP fastMcp)
-        // {
-        //     // Register tools
-        //     foreach (var (name, toolInfo) in Tools)
-        //     {
-        //         fastMcp.AddTool(name, toolInfo.Metadata["description"].ToString(), toolInfo.Function);
-        //     }
-        //     
-        //     // Register resources
-        //     foreach (var (name, resourceInfo) in Resources)
-        //     {
-        //         var resourceName = name;
-        //         var resourceSchema = resourceInfo.Schema;
-        //         var resourceDescription = resourceInfo.Metadata["description"].ToString();
-        //         
-        //         var resource = new MCPResource(resourceName, resourceSchema, resourceDescription);
-        //         fastMcp.AddResource(resource);
-        //     }
-        //     
-        //     // Register prompts
-        //     foreach (var (name, prompt) in Prompts)
-        //     {
-        //         fastMcp.AddPrompt(prompt);
-        //     }
-        // }
+
+        public void SetHttpCaller(HttpApiCaller httpApiCaller)
+        {
+            this.HttpApiCaller = httpApiCaller;
+        }
+
+        public IEnumerable<McpServerTool> GetMcpTools()
+        {
+            foreach (var tool in Tools.Values)
+            {
+                yield return new McpServerApiTool(tool, HttpApiCaller);
+            }
+        }
     }
 }

@@ -3,13 +3,13 @@ using Microsoft.Extensions.Logging;
 
 namespace AutoMCP.Builders;
 
-public class McpServerBuilder
+public class McpServerInfoBuilder
 {
-    public static IMcpServerInfoBuilder ForOpenApi(string serverName = "openapi_tools")
+    public static HttpMcpServerInfoBuilder ForOpenApi(string serverName = "openapi_tools")
     {
         return new OpenApiMcpServerInfoBuilder(serverName);
     }
-    public static IMcpServerInfoBuilder ForGoogleDiscovery(string serverName = "google_api")
+    public static HttpMcpServerInfoBuilder ForGoogleDiscovery(string serverName = "google_api")
     {
         return new GoogleDiscoveryMcpServerInfoBuilder(serverName);
     }

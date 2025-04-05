@@ -1,5 +1,6 @@
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
+using Microsoft.OpenApi.Models;
 
 namespace AutoMCP.Models;
 
