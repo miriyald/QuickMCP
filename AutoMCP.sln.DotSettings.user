@@ -10,10 +10,16 @@
 	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=7020124F_002D9FFC_002D4AC3_002D8F3D_002DAAB8E0240759_002Ff_003AParameterLocation_002Ecs_002Fl_003AC_0021_003FUsers_003FGunpa_003FAppData_003FRoaming_003FJetBrains_003FRider2024_002E3_003Fresharper_002Dhost_003FSourcesCache_003Fa883e8da71d647ece86c726ccbfb71dbbf81a75aab8dc9c92ea61d7c5688_003FParameterLocation_002Ecs/@EntryIndexedValue">ForceIncluded</s:String>
 	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=7020124F_002D9FFC_002D4AC3_002D8F3D_002DAAB8E0240759_002Ff_003AShouldBeNullExtensions_002Ecs_002Fl_003AC_0021_003FUsers_003FGunpa_003FAppData_003FRoaming_003FJetBrains_003FRider2024_002E3_003Fresharper_002Dhost_003FSourcesCache_003F25bda51662b9cbd1d3dd943e6873a915d899d60e2456fc3bca985f6b4af1633_003FShouldBeNullExtensions_002Ecs/@EntryIndexedValue">ForceIncluded</s:String>
 	<s:String x:Key="/Default/CodeInspection/ExcludedFiles/FilesAndFoldersToSkip2/=7020124F_002D9FFC_002D4AC3_002D8F3D_002DAAB8E0240759_002Ff_003AString_002Ecs_002Fl_003AC_0021_003FUsers_003FGunpa_003FAppData_003FRoaming_003FJetBrains_003FRider2024_002E3_003Fresharper_002Dhost_003FDecompilerCache_003Fdecompiler_003Fbb06f64c178142b0b2d10172f56d4911e8e928_003F94_003F80cd21fd_003FString_002Ecs/@EntryIndexedValue">ForceIncluded</s:String>
-	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=1b47753f_002Db498_002D4837_002Dbdb8_002D253eb8f621ce/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="OpenApiTest #2" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=1b47753f_002Db498_002D4837_002Dbdb8_002D253eb8f621ce/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="OpenApiTest #2" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
   &lt;TestAncestor&gt;&#xD;
     &lt;TestId&gt;xUnit::5E53B7DF-7BD0-4847-921F-63B5CE8CA52E::net9.0::AutoMCP.Tests.McpServerInfoBuilderTests.OpenApiTest&lt;/TestId&gt;&#xD;
     &lt;TestId&gt;xUnit::5E53B7DF-7BD0-4847-921F-63B5CE8CA52E::net9.0::AutoMCP.Tests.McpToolTests.ShouldCallMcpTool&lt;/TestId&gt;&#xD;
+    &lt;TestId&gt;xUnit::5E53B7DF-7BD0-4847-921F-63B5CE8CA52E::net9.0::AutoMCP.Tests.McpToolTests&lt;/TestId&gt;&#xD;
+  &lt;/TestAncestor&gt;&#xD;
+&lt;/SessionState&gt;</s:String>
+	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=35e8b15f_002Db5a3_002D4635_002D8070_002D0a6a64b3adb4/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" IsActive="True" Name="ShouldCallMcpTool_Delete_WithBody" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;
+  &lt;TestAncestor&gt;&#xD;
+    &lt;TestId&gt;xUnit::5E53B7DF-7BD0-4847-921F-63B5CE8CA52E::net9.0::AutoMCP.Tests.McpToolTests.ShouldCallMcpTool_Delete_WithBody&lt;/TestId&gt;&#xD;
   &lt;/TestAncestor&gt;&#xD;
 &lt;/SessionState&gt;</s:String>
 	<s:String x:Key="/Default/Environment/UnitTesting/UnitTestSessionStore/Sessions/=a95601fc_002D502f_002D472e_002Db5f7_002D2f7ec796063f/@EntryIndexedValue">&lt;SessionState ContinuousTestingMode="0" Name="OpenApiTest" xmlns="urn:schemas-jetbrains-com:jetbrains-ut-session"&gt;&#xD;

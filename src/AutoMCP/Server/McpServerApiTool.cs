@@ -7,6 +7,7 @@ using ModelContextProtocol.Server;
 
 namespace AutoMCP.Server;
 
+/// <inheritdoc/>
 public class McpServerApiTool : McpServerTool
 {
     private ToolInfo _toolInfo;
@@ -20,7 +21,7 @@ public class McpServerApiTool : McpServerTool
         this._caller = apiCaller;
         ProtocolTool = info.ToProtocolTool();
     }
-
+    /// <inheritdoc/>
     public override async Task<CallToolResponse> InvokeAsync(RequestContext<CallToolRequestParams> request,
         CancellationToken cancellationToken = new CancellationToken())
     {
@@ -83,7 +84,7 @@ public class McpServerApiTool : McpServerTool
                          _toolInfo.Method.Equals("PUT", StringComparison.OrdinalIgnoreCase) ||
                          _toolInfo.Method.Equals("PATCH", StringComparison.OrdinalIgnoreCase))
                 {
-                    requestBody = arguments ?? new Dictionary<string, JsonElement>();
+                   requestBody = arguments ?? new Dictionary<string, JsonElement>();
                 }
             }
         }

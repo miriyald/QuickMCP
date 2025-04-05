@@ -46,13 +46,13 @@ public class BuilderConfig
     /// Gets or sets the paths excluded from processing.
     /// </summary>
     [JsonPropertyName("excludedPaths")]
-    public string[]? ExcludedPaths { get; set; } 
+    public List<string>? ExcludedPaths { get; set; } 
     
     /// <summary>
     /// Gets or sets the paths included for processing.
     /// </summary>
     [JsonPropertyName("includedPaths")]
-    public string[]? IncludedPaths { get; set; }
+    public List<string>? IncludedPaths { get; set; }
     
     /// <summary>
     /// Gets or sets the headers for the server.

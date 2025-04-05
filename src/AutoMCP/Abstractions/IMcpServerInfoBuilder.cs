@@ -9,6 +9,13 @@ namespace AutoMCP.Abstractions;
 public interface IMcpServerInfoBuilder
 {
     /// <summary>
+    /// Configures the builder with a specific server configuration.
+    /// </summary>
+    /// <param name="config">The server configuration object containing necessary details.</param>
+    /// <returns>A builder instance for method chaining.</returns>
+    IMcpServerInfoBuilder WithConfig(BuilderConfig config);
+    
+    /// <summary>
     /// Creates tools from a Swagger/OpenAPI URL
     /// </summary>
     /// <param name="url">The URL to the Swagger/OpenAPI specification</param>
@@ -104,5 +111,5 @@ public interface IMcpServerInfoBuilder
     /// Builds and registers all configured tools with the MCP server
     /// </summary>
     /// <returns>Task that completes when tools are registered</returns>
-    Task<MCPServerInfo> BuildAsync();
+    Task<McpServerInfo> BuildAsync();
 }

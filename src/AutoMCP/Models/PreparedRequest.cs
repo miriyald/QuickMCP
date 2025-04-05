@@ -1,4 +1,4 @@
-﻿namespace AutoMCP.Helpers;
+﻿namespace AutoMCP.Models;
 
 public class PreparedRequest
 {

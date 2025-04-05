@@ -63,7 +63,7 @@ public class GoogleDiscoveryMcpServerInfoBuilder : HttpMcpServerInfoBuilder
     }
 
     /// <inheritdoc />
-    public override async Task<MCPServerInfo> BuildAsync()
+    public override async Task<McpServerInfo> BuildAsync()
     {
         try
         {
@@ -159,7 +159,7 @@ public class GoogleDiscoveryMcpServerInfoBuilder : HttpMcpServerInfoBuilder
         }
     }
 
-    private async Task<MCPServerInfo> ProcessConfigurationAsync(BuilderConfig config)
+    private async Task<McpServerInfo> ProcessConfigurationAsync(BuilderConfig config)
     {
         try
         {

@@ -15,13 +15,8 @@ namespace AutoMCP.Builders;
 /// </summary>
 public abstract class BaseMcpServerInfoBuilder : IMcpServerInfoBuilder
 {
-    static BaseMcpServerInfoBuilder()
-    {
-        OpenApiReaderRegistry.RegisterReader("yaml", new OpenApiYamlReader());
-    }
+    #region Fields and properties
 
-    protected string ServerName;
-    protected string ServerDescription;
     protected ILogger? Logger;
     protected readonly HttpClient HttpClient;
     protected readonly Dictionary<string, Prompt> Prompts;
@@ -29,20 +24,87 @@ public abstract class BaseMcpServerInfoBuilder : IMcpServerInfoBuilder
     protected IAuthenticator? Authenticator;
     protected Func<string, bool>? PathExclusionFunc;
     protected Func<string, bool>? PathInclusionFunc;
-    protected List<string> ExcludedOperationIds = new List<string>();
-    protected List<string> IncludedOperationIds = new List<string>();
-    protected bool GenerateResourcesFlag = true;
-    protected bool GeneratePromptsFlag = true;
 
-    protected readonly Dictionary<string, string> _defaultHeaders = new Dictionary<string, string>();
-    protected readonly Dictionary<string, string> _defaultPathParams = new Dictionary<string, string>();
+    protected BuilderConfig _config = new BuilderConfig();
+
+    protected List<string> ExcludedOperationIds
+    {
+        get
+        {
+            if (_config.ExcludedPaths == null)
+                _config.ExcludedPaths = new List<string>();
+            return _config.ExcludedPaths;
+        }
+        set => _config.ExcludedPaths = value;
+    }
+
+    protected string ServerName
+    {
+        get => _config.ServerName ?? string.Empty;
+        set => _config.ServerName = value;
+    }
+
+    protected string ServerDescription
+    {
+        get => _config.ServerDescription ?? string.Empty;
+        set => _config.ServerDescription = value;
+    }
+
+
+    protected List<string> IncludedOperationIds
+    {
+        get
+        {
+            if (_config.IncludedPaths == null)
+                _config.IncludedPaths = new List<string>();
+            return _config.IncludedPaths;
+        }
+        set => _config.IncludedPaths = value;
+    }
+
+    protected bool GenerateResourcesFlag
+    {
+        get => _config.GenerateResources;
+        set => _config.GenerateResources = value;
+    }
+
+    protected bool GeneratePromptsFlag
+    {
+        get => _config.GeneratePrompts;
+        set => _config.GeneratePrompts = value;
+    }
+
+    protected Dictionary<string, string> DefaultHeaders
+    {
+        get => _config.ServerHeaders ?? new Dictionary<string, string>();
+        set => _config.ServerHeaders = value;
+    }
+
+    protected Dictionary<string, string> DefaultPathParams
+    {
+        get => _config.DefaultPathParameters ?? new Dictionary<string, string>();
+        set => _config.DefaultPathParameters = value;
+    }
+
     protected TimeSpan _timeout = TimeSpan.FromSeconds(30);
     protected HttpClient _httpClient;
 
-    protected string _baseUrl;
+    protected string BaseUrl
+    {
+        get => _config.ApiBaseUrl ?? string.Empty;
+        set => _config.ApiBaseUrl = value;
+    }
 
     protected readonly Dictionary<string, ToolInfo> RegisteredTools;
     protected readonly Dictionary<string, ResourceInfo> RegisteredResources;
+
+    #endregion
+
+    static BaseMcpServerInfoBuilder()
+    {
+        OpenApiReaderRegistry.RegisterReader("yaml", new OpenApiYamlReader());
+    }
+
 
     /// <summary>
     /// Creates a new instance of BaseMCPToolBuilder
@@ -57,6 +119,12 @@ public abstract class BaseMcpServerInfoBuilder : IMcpServerInfoBuilder
         Prompts = new Dictionary<string, Prompt>();
         RegisteredTools = new Dictionary<string, ToolInfo>();
         RegisteredResources = new Dictionary<string, ResourceInfo>();
+    }
+    /// <inheritdoc />
+    public IMcpServerInfoBuilder WithConfig(BuilderConfig config)
+    {
+        this._config = config;
+        return this;
     }
 
     /// <inheritdoc />
@@ -75,6 +143,7 @@ public abstract class BaseMcpServerInfoBuilder : IMcpServerInfoBuilder
 
         Logger?.LogInformation("Set configuration file path: {ConfigPath}", configPath);
 
+       
         // Load configuration will happen in BuildAsync
         return this;
     }
@@ -110,36 +179,36 @@ public abstract class BaseMcpServerInfoBuilder : IMcpServerInfoBuilder
         Logger?.LogInformation("Including only {Count} operation IDs", IncludedOperationIds.Count);
         return this;
     }
-
+    /// <inheritdoc />
     public IMcpServerInfoBuilder SetBaseUrl(string baseUrl)
     {
-        this._baseUrl = baseUrl;
+        this.BaseUrl = baseUrl;
         return this;
     }
-
+    /// <inheritdoc />
     public IMcpServerInfoBuilder WithDefaultPathParams(Dictionary<string, string> defaultPathParams)
     {
         foreach (var param in defaultPathParams)
         {
-            this._defaultPathParams[param.Key] = param.Value;
+            this.DefaultPathParams[param.Key] = param.Value;
         }
 
         return this;
     }
-
+    /// <inheritdoc />
     public IMcpServerInfoBuilder WithHttpClient(HttpClient httpClient)
     {
         _httpClient = httpClient;
         return this;
     }
-
+    /// <inheritdoc />
     public IMcpServerInfoBuilder WithDefaultHeader(string key, string value)
     {
-        _defaultHeaders[key] = value;
+        DefaultHeaders[key] = value;
         return this;
     }
 
-    // Sets the timeout for HTTP requests.
+    /// <inheritdoc />
     public IMcpServerInfoBuilder WithTimeout(TimeSpan timeout)
     {
         _timeout = timeout;
@@ -178,7 +247,7 @@ public abstract class BaseMcpServerInfoBuilder : IMcpServerInfoBuilder
     }
 
     /// <inheritdoc />
-    public abstract Task<MCPServerInfo> BuildAsync();
+    public abstract Task<McpServerInfo> BuildAsync();
 
     /// <summary>
     /// Filters a collection of operations based on the configured filters
@@ -390,9 +459,9 @@ public abstract class BaseMcpServerInfoBuilder : IMcpServerInfoBuilder
     /// Creates a MCPToolCollection from the current state
     /// </summary>
     /// <returns>A collection of the built tools, resources, and prompts</returns>
-    protected virtual MCPServerInfo CreateToolCollection()
+    protected virtual McpServerInfo CreateToolCollection()
     {
-        return new MCPServerInfo(
+        return new McpServerInfo(
             ServerName,
             ServerDescription,
             RegisteredTools,

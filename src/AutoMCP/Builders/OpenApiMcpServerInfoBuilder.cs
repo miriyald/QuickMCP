@@ -61,7 +61,7 @@ public class OpenApiMcpServerInfoBuilder : HttpMcpServerInfoBuilder
     }
 
     /// <inheritdoc />
-    public override async Task<MCPServerInfo> BuildAsync()
+    public override async Task<McpServerInfo> BuildAsync()
     {
         try
         {
@@ -69,6 +69,7 @@ public class OpenApiMcpServerInfoBuilder : HttpMcpServerInfoBuilder
             if (!string.IsNullOrEmpty(_configFilePath))
             {
                 var config = await LoadConfigurationAsync<BuilderConfig>(_configFilePath);
+                
                 if (config != null)
                 {
                     return await ProcessConfigurationAsync(config);
@@ -112,6 +113,11 @@ public class OpenApiMcpServerInfoBuilder : HttpMcpServerInfoBuilder
         }
     }
 
+    /// <summary>
+    /// Loads an OpenAPI specification document from the provided URL asynchronously.
+    /// </summary>
+    /// <param name="url">The URL of the OpenAPI specification to load.</param>
+    /// <returns>The loaded <see cref="OpenApiDocument"/> if successful; otherwise, null.</returns>
     private async Task<OpenApiDocument?> LoadOpenApiFromUrlAsync(string url)
     {
         try
@@ -139,6 +145,11 @@ public class OpenApiMcpServerInfoBuilder : HttpMcpServerInfoBuilder
         }
     }
 
+    /// <summary>
+    /// Asynchronously loads an OpenAPI document from a file.
+    /// </summary>
+    /// <param name="filePath">The file path of the OpenAPI specification to load.</param>
+    /// <returns>The loaded <see cref="OpenApiDocument"/> if successful; otherwise, null.</returns>
     private async Task<OpenApiDocument?> LoadOpenApiFromFileAsync(string filePath)
     {
         try
@@ -174,16 +185,18 @@ public class OpenApiMcpServerInfoBuilder : HttpMcpServerInfoBuilder
         }
     }
 
-    private async Task<MCPServerInfo> ProcessConfigurationAsync(BuilderConfig config)
+    /// <summary>
+    /// Processes the provided configuration and generates an instance of McpServerInfo.
+    /// </summary>
+    /// <param name="config">The configuration containing details such as server name, description, and OpenAPI specification paths or URLs.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the configured instance of McpServerInfo.</returns>
+    private async Task<McpServerInfo> ProcessConfigurationAsync(BuilderConfig config)
     {
         try
         {
             InitializeFromConfig(config);
             // Set up authentication if configured
-            if (config.Authentication != null)
-            {
-                Authenticator = AuthenticatorFactory.Create(config.Authentication);
-            }
+            
 
             // Process OpenAPI URL if provided
             if (!string.IsNullOrEmpty(config.ApiSpecUrl))
@@ -223,7 +236,12 @@ public class OpenApiMcpServerInfoBuilder : HttpMcpServerInfoBuilder
         }
     }
 
-  
+
+    /// <summary>
+    /// Processes the provided OpenAPI document, extracting operations, determining the base URL,
+    /// applying filters, and registering tools based on the document content.
+    /// </summary>
+    /// <param name="openApiDoc">The OpenAPI document to process</param>
     private void ProcessOpenApiDocumentAsync(OpenApiDocument openApiDoc)
     {
         try
@@ -236,7 +254,7 @@ public class OpenApiMcpServerInfoBuilder : HttpMcpServerInfoBuilder
                 return;
             }
 
-            _baseUrl = DetermineServerUrl(openApiDoc);
+            BaseUrl = DetermineServerUrl(openApiDoc);
             var operationsInfo = ExtractOperationsInfo(openApiDoc);
 
             // Apply filters
@@ -272,11 +290,18 @@ public class OpenApiMcpServerInfoBuilder : HttpMcpServerInfoBuilder
         }
     }
 
+    /// <summary>
+    /// Determines the server URL from the provided OpenAPI document. If a base URL is already set, it will be returned;
+    /// otherwise, it extracts the first server URL from the document. Throws an exception if no server URL is found.
+    /// </summary>
+    /// <param name="openApiDoc">The OpenAPI document from which the server URL is extracted.</param>
+    /// <returns>The determined server URL as a string.</returns>
+    /// <exception cref="Exception">Thrown when no server URL is found in the OpenAPI document.</exception>
     private string DetermineServerUrl(OpenApiDocument openApiDoc)
     {
         // Extract server URL from the OpenAPI document
-        if (!string.IsNullOrEmpty(_baseUrl))
-            return _baseUrl;
+        if (!string.IsNullOrEmpty(BaseUrl))
+            return BaseUrl;
         if (openApiDoc.Servers != null && openApiDoc.Servers.Count > 0)
         {
             return openApiDoc.Servers[0].Url;
@@ -285,6 +310,13 @@ public class OpenApiMcpServerInfoBuilder : HttpMcpServerInfoBuilder
         throw new Exception("No server URL found in OpenAPI document, please specify a base URL.");
     }
 
+    /// <summary>
+    /// Extracts operations' metadata from an OpenAPI document.
+    /// </summary>
+    /// <param name="openApiDoc">The OpenAPI document from which operations will be extracted.</param>
+    /// <returns>
+    /// A dictionary containing operation IDs as keys and their corresponding <c>OperationInfo</c> as values.
+    /// </returns>
     private Dictionary<string, OperationInfo> ExtractOperationsInfo(OpenApiDocument openApiDoc)
     {
         var operationsInfo = new Dictionary<string, OperationInfo>();
@@ -324,6 +356,11 @@ public class OpenApiMcpServerInfoBuilder : HttpMcpServerInfoBuilder
         return operationsInfo;
     }
 
+    /// <summary>
+    /// Extracts a list of parameters from the provided OpenAPI operation.
+    /// </summary>
+    /// <param name="operation">The OpenAPI operation from which to extract parameters.</param>
+    /// <returns>A list of parameters defined in the OpenAPI operation.</returns>
     private List<Parameter> ExtractParameters(OpenApiOperation operation)
     {
         var parameters = new List<Parameter>();
@@ -389,6 +426,11 @@ public class OpenApiMcpServerInfoBuilder : HttpMcpServerInfoBuilder
         return parameters;
     }
 
+    /// <summary>
+    /// Extracts the response schema from the given OpenAPI operation.
+    /// </summary>
+    /// <param name="operation">The OpenAPI operation from which the response schema will be extracted.</param>
+    /// <returns>A <see cref="JsonNode"/> representation of the response schema, or an empty <see cref="JsonObject"/> if no schema is defined.</returns>
     private JsonNode? ExtractResponseSchema(OpenApiOperation operation)
     {
         if (operation.Responses != null &&
@@ -403,6 +445,11 @@ public class OpenApiMcpServerInfoBuilder : HttpMcpServerInfoBuilder
         return new JsonObject();
     }
 
+    /// <summary>
+    /// Converts an OpenAPI schema into a JSON node structure.
+    /// </summary>
+    /// <param name="schema">The OpenAPI schema to be converted. Can be null.</param>
+    /// <returns>A JSON object representing the structure of the provided OpenAPI schema.</returns>
     private JsonObject ConvertOpenApiSchemaToJsonNode(IOpenApiSchema? schema)
     {
         if (schema == null)
@@ -463,6 +510,12 @@ public class OpenApiMcpServerInfoBuilder : HttpMcpServerInfoBuilder
         return result;
     }
 
+    /// <summary>
+    /// Generates metadata for a tool based on the provided operation ID and operation information.
+    /// </summary>
+    /// <param name="opId">The unique identifier of the operation.</param>
+    /// <param name="info">Detailed information about the operation, including parameters, tags, and response schema.</param>
+    /// <returns>An instance of <see cref="ToolMetadata"/> containing the generated metadata for the tool.</returns>
     private ToolMetadata GenerateToolMetadata(string opId, OperationInfo info)
     {
         // Generate proper tool metadata
@@ -534,6 +587,10 @@ public class OpenApiMcpServerInfoBuilder : HttpMcpServerInfoBuilder
         return metadata;
     }
 
+    /// <summary>
+    /// Registers resources from the provided OpenAPI document by converting each schema into a structured resource format.
+    /// </summary>
+    /// <param name="openApiDoc">The OpenAPI document containing schemas to be registered as resources.</param>
     private void RegisterResources(OpenApiDocument openApiDoc)
     {
         try
@@ -578,6 +635,10 @@ public class OpenApiMcpServerInfoBuilder : HttpMcpServerInfoBuilder
         }
     }
 
+    /// <summary>
+    /// Generates prompts from an OpenAPI document, including general usage prompts and example prompts for resources.
+    /// </summary>
+    /// <param name="openApiDoc">The OpenAPI document used as a source for generating prompts.</param>
     private void GeneratePrompts(OpenApiDocument openApiDoc)
     {
         try
@@ -603,6 +664,11 @@ public class OpenApiMcpServerInfoBuilder : HttpMcpServerInfoBuilder
         }
     }
 
+    /// <summary>
+    /// Generates a general usage prompt for an API based on the provided OpenAPI document.
+    /// </summary>
+    /// <param name="openApiDoc">The OpenAPI document containing API information and structure.</param>
+    /// <returns>A prompt containing general usage guidance for the API.</returns>
     private Prompt GenerateGeneralUsagePrompt(OpenApiDocument openApiDoc)
     {
         var info = openApiDoc.Info;
@@ -660,6 +726,11 @@ public class OpenApiMcpServerInfoBuilder : HttpMcpServerInfoBuilder
         return new Prompt(promptName, generalPromptContent.ToString(), promptDescription);
     }
 
+    /// <summary>
+    /// Generates example prompts for CRUD operations on resources defined in the OpenAPI document.
+    /// </summary>
+    /// <param name="openApiDoc">The OpenAPI document containing the resource and operation definitions.</param>
+    /// <returns>A list of prompts, each representing example usage patterns for a particular resource.</returns>
     private List<Prompt> GenerateExamplePrompts(OpenApiDocument openApiDoc)
     {
         var prompts = new List<Prompt>();
@@ -725,6 +796,11 @@ public class OpenApiMcpServerInfoBuilder : HttpMcpServerInfoBuilder
         return prompts;
     }
 
+    /// <summary>
+    /// Identifies CRUD operations for each resource defined in the OpenAPI document.
+    /// </summary>
+    /// <param name="openApiDoc">The OpenAPI document containing path and operation data.</param>
+    /// <returns>A dictionary mapping resource names to their respective CRUD operations and associated operation identifiers.</returns>
     private Dictionary<string, Dictionary<string, string>> IdentifyCrudOperations(OpenApiDocument openApiDoc)
     {
         var crudOps = new Dictionary<string, Dictionary<string, string>>();
