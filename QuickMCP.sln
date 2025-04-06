@@ -1,0 +1,37 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{F2FECFD0-FBB0-42F5-AB19-E1F9C78C713E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{D87BC30B-F020-4206-AC2A-BE19176D87E0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuickMCP", "src\QuickMCP\QuickMCP.csproj", "{31FA312E-201A-4E50-8E2F-8347E48891CC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuickMCP.CLI", "src\QuickMCP.CLI\QuickMCP.CLI.csproj", "{3B95B170-50B4-44F6-9303-B7752916CB30}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "QuickMCP.Tests", "tests\QuickMCP.Tests\QuickMCP.Tests.csproj", "{4C291B0D-54A3-4FB8-B162-D12E66AEA877}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{31FA312E-201A-4E50-8E2F-8347E48891CC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{31FA312E-201A-4E50-8E2F-8347E48891CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{31FA312E-201A-4E50-8E2F-8347E48891CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{31FA312E-201A-4E50-8E2F-8347E48891CC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3B95B170-50B4-44F6-9303-B7752916CB30}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3B95B170-50B4-44F6-9303-B7752916CB30}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3B95B170-50B4-44F6-9303-B7752916CB30}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3B95B170-50B4-44F6-9303-B7752916CB30}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4C291B0D-54A3-4FB8-B162-D12E66AEA877}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4C291B0D-54A3-4FB8-B162-D12E66AEA877}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4C291B0D-54A3-4FB8-B162-D12E66AEA877}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4C291B0D-54A3-4FB8-B162-D12E66AEA877}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{31FA312E-201A-4E50-8E2F-8347E48891CC} = {F2FECFD0-FBB0-42F5-AB19-E1F9C78C713E}
+		{3B95B170-50B4-44F6-9303-B7752916CB30} = {F2FECFD0-FBB0-42F5-AB19-E1F9C78C713E}
+		{4C291B0D-54A3-4FB8-B162-D12E66AEA877} = {D87BC30B-F020-4206-AC2A-BE19176D87E0}
+	EndGlobalSection
+EndGlobal
