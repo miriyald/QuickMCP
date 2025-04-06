@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace AutoMCP.Models;
+namespace AutoMCP.Types;
 
 /// <summary>
 /// Represents information about a server, including its name and description.

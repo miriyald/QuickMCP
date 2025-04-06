@@ -1,9 +1,8 @@
-﻿using System.Collections;
-using AutoMCP.Http;
+﻿using AutoMCP.Http;
 using AutoMCP.Server;
 using ModelContextProtocol.Server;
 
-namespace AutoMCP.Models;
+namespace AutoMCP.Types;
 
 /// <summary>
 /// Collection of MCP tools, resources, and prompts
@@ -55,6 +54,12 @@ public class McpServerInfo
     /// </summary>
     public HttpApiCaller HttpApiCaller { get; private set; }
 
+
+    /// <summary>
+    /// The configuration used for building and managing server-related settings.
+    /// </summary>
+    public BuilderConfig BuilderConfig { get;  private set; }
+
     /// <summary>
     /// Creates a new instance of MCPToolCollection
     /// </summary>
@@ -63,13 +68,15 @@ public class McpServerInfo
         string description,
         IReadOnlyDictionary<string, ToolInfo> tools,
         IReadOnlyDictionary<string, ResourceInfo> resources,
-        IReadOnlyDictionary<string, Prompt> prompts)
+        IReadOnlyDictionary<string, Prompt> prompts,
+        BuilderConfig builderConfig)
     {
         Name = name;
         Description = description;
         Tools = tools;
         Resources = resources;
         Prompts = prompts;
+        this.BuilderConfig = builderConfig;
     }
 
     public void SetHttpCaller(HttpApiCaller httpApiCaller)

@@ -1,4 +1,6 @@
-﻿using AutoMCP.Abstractions;
+﻿using System.Text.Json;
+using AutoMCP.Abstractions;
+using AutoMCP.Types;
 using Microsoft.Extensions.Logging;
 
 namespace AutoMCP.Builders;
@@ -29,5 +31,26 @@ public class McpServerInfoBuilder
     public static HttpMcpServerInfoBuilder ForGoogleDiscovery(string serverName = "google_api")
     {
         return new GoogleDiscoveryMcpServerInfoBuilder(serverName);
+    }
+
+    public static IMcpServerInfoBuilder FromConfig(string configFile)
+    {
+        if(string.IsNullOrEmpty(configFile))
+            throw new ArgumentNullException(nameof(configFile));
+        var file = File.ReadAllText(configFile);
+        var config = (BuilderConfig) JsonSerializer.Deserialize(configFile, AutoMcpJsonSerializerContext.Default.BuilderConfig);
+
+        return FromConfig(config);
+    }
+
+    public static IMcpServerInfoBuilder FromConfig(BuilderConfig config)
+    {
+        return config.Type switch
+        {
+            "openapi" => ForOpenApi().WithConfig(config),
+            "discovery" => ForGoogleDiscovery().WithConfig(config),
+            _ => throw new ArgumentException(
+                $"Invalid server type: {config.Type}. Supported types are: openapi, discovery")
+        };
     }
 }

@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
 using AutoMCP.Http;
-using AutoMCP.Models;
+using AutoMCP.Types;
 using Microsoft.OpenApi.Models;
 using ModelContextProtocol.Protocol.Types;
 using ModelContextProtocol.Server;

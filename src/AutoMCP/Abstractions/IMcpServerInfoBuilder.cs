@@ -1,4 +1,4 @@
-﻿using AutoMCP.Models;
+﻿using AutoMCP.Types;
 using Microsoft.Extensions.Logging;
 
 namespace AutoMCP.Abstractions;
@@ -76,7 +76,7 @@ public interface IMcpServerInfoBuilder
     /// Configures the builder to use logging for operations and events.
     /// </summary>
     /// <returns>A builder instance for method chaining</returns>
-    IMcpServerInfoBuilder UseLogging(ILogger logger);
+    IMcpServerInfoBuilder AddLogging(ILoggerFactory loggerFactory);
 
     /// <summary>
     /// Configures default path parameters to be included in all requests
@@ -98,7 +98,7 @@ public interface IMcpServerInfoBuilder
     /// <param name="key">The header name.</param>
     /// <param name="value">The header value.</param>
     /// <returns>A builder instance for method chaining.</returns>
-    IMcpServerInfoBuilder WithDefaultHeader(string key, string value);
+    IMcpServerInfoBuilder AddDefaultHeader(string key, string value);
 
     /// <summary>
     /// Sets the timeout duration for HTTP requests.

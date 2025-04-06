@@ -3,7 +3,7 @@ using System.Text.Json;
 using AutoMCP.Abstractions;
 using AutoMCP.Authentication;
 using AutoMCP.Http;
-using AutoMCP.Models;
+using AutoMCP.Types;
 using Microsoft.Extensions.Logging;
 
 namespace AutoMCP.Builders;
@@ -27,10 +27,13 @@ public abstract class HttpMcpServerInfoBuilder : BaseMcpServerInfoBuilder
     {
         base.FromConfiguration(configPath);
         var config = LoadConfigurationAsync<BuilderConfig>(configPath).Result;
-        if (config != null)
-        {
-            InitializeFromConfig(config);   
-        }
+        return WithConfig(config);
+    }
+
+    public override IMcpServerInfoBuilder WithConfig(BuilderConfig config)
+    {
+        base.WithConfig(config);
+        InitializeFromConfig(config);
         return this;
     }
 

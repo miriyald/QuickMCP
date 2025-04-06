@@ -1,8 +1,7 @@
 using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
-using Microsoft.OpenApi.Models;
 
-namespace AutoMCP.Models;
+namespace AutoMCP.Types;
 
 /// <summary>
 /// Represents a parameter used in API operations, including its name, location, type, and additional metadata.

@@ -1,15 +1,17 @@
-﻿using AutoMCP.Models;
+﻿using AutoMCP.Types;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace AutoMCP.Extensions;
 
-public static class SeviceCollectionExtensions
+public static class McpServerBuilderExtensions
 {
-    public static void AddAutoMCP(this IServiceCollection services, McpServerInfo mcpServerInfo)
+    public static IMcpServerBuilder WithAutoMcp(this IMcpServerBuilder builder, McpServerInfo mcpServerInfo)
     {
         foreach (var tool in mcpServerInfo.GetMcpTools())
         {
-            services.AddSingleton(tool);
-        }
+            builder.Services.AddSingleton(tool);
+        } 
+
+        return builder;
     }
 }

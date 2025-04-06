@@ -3,7 +3,7 @@ using System.Text.Json.Nodes;
 using AutoMCP.Abstractions;
 using AutoMCP.Authentication;
 using AutoMCP.Helpers;
-using AutoMCP.Models;
+using AutoMCP.Types;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Extensions;
 using Microsoft.OpenApi.Models;
@@ -17,9 +17,7 @@ namespace AutoMCP.Builders;
 /// </summary>
 public class OpenApiMcpServerInfoBuilder : HttpMcpServerInfoBuilder
 {
-    private string? _openApiUrl;
-    private string? _openApiFilePath;
-    private string? _configFilePath;
+   
     private OpenApiDocument? _openApiDocument;
 
     /// <summary>
@@ -35,7 +33,7 @@ public class OpenApiMcpServerInfoBuilder : HttpMcpServerInfoBuilder
     /// <inheritdoc />
     public override IMcpServerInfoBuilder FromUrl(string url)
     {
-        _openApiUrl = url;
+        OpenApiUrl = url;
         Logger?.LogInformation("Set OpenAPI URL: {Url}", url);
         return this;
     }
@@ -48,7 +46,7 @@ public class OpenApiMcpServerInfoBuilder : HttpMcpServerInfoBuilder
             throw new FileNotFoundException("OpenAPI specification file not found", filePath);
         }
 
-        _openApiFilePath = filePath;
+        OpenApiFilePath = filePath;
         Logger?.LogInformation("Set OpenAPI file path: {FilePath}", filePath);
         return this;
     }
@@ -56,7 +54,7 @@ public class OpenApiMcpServerInfoBuilder : HttpMcpServerInfoBuilder
     /// <inheritdoc />
     public override IMcpServerInfoBuilder FromConfiguration(string configPath)
     {
-        _configFilePath = configPath;
+        ConfigFilePath = configPath;
         return base.FromConfiguration(configPath);
     }
 
@@ -66,22 +64,22 @@ public class OpenApiMcpServerInfoBuilder : HttpMcpServerInfoBuilder
         try
         {
             // Load OpenAPI specification from the appropriate source
-            if (!string.IsNullOrEmpty(_configFilePath))
+            if (!string.IsNullOrEmpty(ConfigFilePath))
             {
-                var config = await LoadConfigurationAsync<BuilderConfig>(_configFilePath);
+                var config = await LoadConfigurationAsync<BuilderConfig>(ConfigFilePath);
                 
                 if (config != null)
                 {
                     return await ProcessConfigurationAsync(config);
                 }
             }
-            else if (!string.IsNullOrEmpty(_openApiUrl))
+            else if (!string.IsNullOrEmpty(OpenApiUrl))
             {
-                _openApiDocument = await LoadOpenApiFromUrlAsync(_openApiUrl);
+                _openApiDocument = await LoadOpenApiFromUrlAsync(OpenApiUrl);
             }
-            else if (!string.IsNullOrEmpty(_openApiFilePath))
+            else if (!string.IsNullOrEmpty(OpenApiFilePath))
             {
-                _openApiDocument = await LoadOpenApiFromFileAsync(_openApiFilePath);
+                _openApiDocument = await LoadOpenApiFromFileAsync(OpenApiFilePath);
             }
             
             if (_openApiDocument == null)

@@ -2,7 +2,7 @@
 using AutoMCP.Abstractions;
 using AutoMCP.Helpers;
 using AutoMCP.Http;
-using AutoMCP.Models;
+using AutoMCP.Types;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.OpenApi.Reader;
@@ -18,6 +18,7 @@ public abstract class BaseMcpServerInfoBuilder : IMcpServerInfoBuilder
     #region Fields and properties
 
     protected ILogger? Logger;
+    protected ILoggerFactory LoggerFactory;
     protected readonly HttpClient HttpClient;
     protected readonly Dictionary<string, Prompt> Prompts;
 
@@ -50,6 +51,19 @@ public abstract class BaseMcpServerInfoBuilder : IMcpServerInfoBuilder
         set => _config.ServerDescription = value;
     }
 
+    protected string? OpenApiUrl
+    {
+        get => _config.ApiSpecUrl;
+        set => _config.ApiSpecUrl = value;
+    }
+
+    protected string? OpenApiFilePath
+    {
+        get => _config.ApiSpecPath;
+        set => _config.ApiSpecPath = value;
+    }
+
+    protected string? ConfigFilePath;
 
     protected List<string> IncludedOperationIds
     {
@@ -120,10 +134,12 @@ public abstract class BaseMcpServerInfoBuilder : IMcpServerInfoBuilder
         RegisteredTools = new Dictionary<string, ToolInfo>();
         RegisteredResources = new Dictionary<string, ResourceInfo>();
     }
+
     /// <inheritdoc />
-    public IMcpServerInfoBuilder WithConfig(BuilderConfig config)
+    public virtual IMcpServerInfoBuilder WithConfig(BuilderConfig config)
     {
         this._config = config;
+
         return this;
     }
 
@@ -142,8 +158,6 @@ public abstract class BaseMcpServerInfoBuilder : IMcpServerInfoBuilder
         }
 
         Logger?.LogInformation("Set configuration file path: {ConfigPath}", configPath);
-
-       
         // Load configuration will happen in BuildAsync
         return this;
     }
@@ -179,12 +193,14 @@ public abstract class BaseMcpServerInfoBuilder : IMcpServerInfoBuilder
         Logger?.LogInformation("Including only {Count} operation IDs", IncludedOperationIds.Count);
         return this;
     }
+
     /// <inheritdoc />
     public IMcpServerInfoBuilder SetBaseUrl(string baseUrl)
     {
         this.BaseUrl = baseUrl;
         return this;
     }
+
     /// <inheritdoc />
     public IMcpServerInfoBuilder WithDefaultPathParams(Dictionary<string, string> defaultPathParams)
     {
@@ -195,14 +211,16 @@ public abstract class BaseMcpServerInfoBuilder : IMcpServerInfoBuilder
 
         return this;
     }
+
     /// <inheritdoc />
     public IMcpServerInfoBuilder WithHttpClient(HttpClient httpClient)
     {
         _httpClient = httpClient;
         return this;
     }
+
     /// <inheritdoc />
-    public IMcpServerInfoBuilder WithDefaultHeader(string key, string value)
+    public IMcpServerInfoBuilder AddDefaultHeader(string key, string value)
     {
         DefaultHeaders[key] = value;
         return this;
@@ -224,9 +242,11 @@ public abstract class BaseMcpServerInfoBuilder : IMcpServerInfoBuilder
     }
 
     /// <inheritdoc />
-    public IMcpServerInfoBuilder UseLogging(ILogger _logger)
+    public IMcpServerInfoBuilder AddLogging(ILoggerFactory loggerFactory)
     {
-        this.Logger = _logger;
+        this.LoggerFactory = loggerFactory ?? NullLoggerFactory.Instance;
+
+        this.Logger = loggerFactory.CreateLogger(GetType());
         return this;
     }
 
@@ -466,7 +486,8 @@ public abstract class BaseMcpServerInfoBuilder : IMcpServerInfoBuilder
             ServerDescription,
             RegisteredTools,
             GenerateResourcesFlag ? RegisteredResources : new Dictionary<string, ResourceInfo>(),
-            GeneratePromptsFlag ? Prompts : new Dictionary<string, Prompt>()
+            GeneratePromptsFlag ? Prompts : new Dictionary<string, Prompt>(),
+            this._config
         );
     }
 }

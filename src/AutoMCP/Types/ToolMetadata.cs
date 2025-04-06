@@ -1,7 +1,7 @@
 ﻿using System.Text.Json.Nodes;
 using System.Text.Json.Serialization;
 
-namespace AutoMCP.Models;
+namespace AutoMCP.Types;
 
 /// <summary>
 /// Represents metadata information for a tool, including its name, description, inputs, parameters, tags, server info, and response schema.

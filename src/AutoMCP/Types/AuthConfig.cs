@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace AutoMCP.Models;
+namespace AutoMCP.Types;
 
 /// <summary>
 /// Represents the authentication configuration.

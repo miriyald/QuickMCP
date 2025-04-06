@@ -2,7 +2,7 @@
 using System.Text.Json.Serialization;
 using ModelContextProtocol.Protocol.Types;
 
-namespace AutoMCP.Models;
+namespace AutoMCP.Types;
 
 public class ToolInfo
 {

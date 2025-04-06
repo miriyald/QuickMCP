@@ -123,7 +123,7 @@ public class HttpApiCaller
                 Content = new List<Content>([
                     new Content()
                     {
-                        Type = response.Content.Headers.ContentType?.MediaType ?? "",
+                        Type = "text",
                         Text = responseContent,
                     }
                 ])

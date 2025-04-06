@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using AutoMCP.Abstractions;
 using AutoMCP.Authentication;
 using AutoMCP.Helpers;
-using AutoMCP.Models;
+using AutoMCP.Types;
 using Microsoft.Extensions.Logging;
 
 namespace AutoMCP.Builders;

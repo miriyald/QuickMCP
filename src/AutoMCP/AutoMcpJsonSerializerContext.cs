@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 using AutoMCP.Helpers;
-using AutoMCP.Models;
+using AutoMCP.Types;
 using ModelContextProtocol;
 using ModelContextProtocol.Protocol.Messages;
 

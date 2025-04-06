@@ -2,7 +2,7 @@
 using System.Text.Json;
 using AutoMCP.Abstractions;
 using AutoMCP.Helpers;
-using AutoMCP.Models;
+using AutoMCP.Types;
 
 namespace AutoMCP.Authentication;
 
@@ -12,12 +12,69 @@ namespace AutoMCP.Authentication;
 /// </summary>
 public class OAuth2ClientCredentialsAuthenticator : IAuthenticator
 {
+    #region Fields and Properties
+
     private readonly string _tokenUrl;
     private readonly string _clientId;
     private readonly string _clientSecret;
     private readonly string _scope;
     private readonly HttpClient _httpClient;
     private readonly OAuthCache _tokenCache;
+    public string Type => Metadata.Type;
+    public AuthenticatorMetadata Metadata => GetMetadata();
+
+    #endregion
+
+    #region Factory
+
+    /// <summary>
+    /// Retrieves the metadata for the API key authenticator, including its name, description,
+    /// configuration keys, and type.
+    /// </summary>
+    /// <returns>An instance of <see cref="AuthenticatorMetadata"/> containing details about the API key authenticator.</returns>
+    public static AuthenticatorMetadata GetMetadata()
+    {
+        const string name = "OAuth 2.0 Client Credentials Authentication";
+
+        const string description =
+            $"OAuth 2.0 Client Credentials Authentication using token endpoint.";
+
+        const string type = "oAuth";
+
+        List<(string Key, string Description, bool IsRequired)> configKeys =
+        [
+            ("tokenUrl", "The URL used to retrieve an access token.", true),
+            ("clientId", "The client ID for authentication.", true),
+            ("clientSecret", "The client secret for authentication.", true),
+            ("scope", "Optional access scope, defaults to 'client_credentials'.", false)
+        ];
+        return new AuthenticatorMetadata(name, description, configKeys, type);
+    }
+
+    /// <summary>
+    /// Creates an OAuth2 Client Credentials Authenticator.
+    /// </summary>
+    /// <param name="settings">The settings containing token URL, client ID, client secret, and optional scope.</param>
+    /// <returns>An instance of <see cref="OAuth2ClientCredentialsAuthenticator"/>.</returns>
+    /// <exception cref="ArgumentException">Thrown when required settings (token URL, client ID, client secret) are missing.</exception>
+    public static IAuthenticator Create(Dictionary<string, string> settings)
+    {
+        if (!settings.TryGetValue("tokenUrl", out var tokenUrl) ||
+            !settings.TryGetValue("clientId", out var clientId) ||
+            !settings.TryGetValue("clientSecret", out var clientSecret))
+        {
+            throw new ArgumentException(
+                "OAuth2 authentication requires 'tokenUrl', 'clientId', and 'clientSecret' settings");
+        }
+
+        settings.TryGetValue("scope", out var scope);
+
+        return new OAuth2ClientCredentialsAuthenticator(tokenUrl, clientId, clientSecret, scope);
+    }
+
+    #endregion
+
+    #region Constructors
 
     /// <summary>
     /// Initializes a new instance of the <see cref="OAuth2ClientCredentialsAuthenticator"/> class.
@@ -42,6 +99,10 @@ public class OAuth2ClientCredentialsAuthenticator : IAuthenticator
         _httpClient = new HttpClient();
         _tokenCache = new OAuthCache();
     }
+
+    #endregion
+
+    #region IAuthenticator Implementation
 
     /// <inheritdoc />
     public async Task AuthenticateRequestAsync(HttpRequestMessage request)
@@ -74,6 +135,10 @@ public class OAuth2ClientCredentialsAuthenticator : IAuthenticator
         var token = await GetAccessTokenAsync();
         return !string.IsNullOrEmpty(token);
     }
+
+    #endregion
+
+    #region Private Methods
 
     /// <summary>
     /// Retrieves an access token, utilizing the cache if available, otherwise fetching a new one.
@@ -124,4 +189,6 @@ public class OAuth2ClientCredentialsAuthenticator : IAuthenticator
 
         return null;
     }
+
+    #endregion
 }

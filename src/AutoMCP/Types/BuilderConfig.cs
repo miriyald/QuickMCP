@@ -1,12 +1,13 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace AutoMCP.Models;
+namespace AutoMCP.Types;
 
 /// <summary>
 /// Configuration for builder
 /// </summary>
 public class BuilderConfig
 {
+    public string Type { get; set; } = "openapi";
     /// <summary>
     /// Gets or sets the name of the server.
     /// </summary>

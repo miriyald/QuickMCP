@@ -1,4 +1,4 @@
-namespace AutoMCP.Models;
+namespace AutoMCP.Types;
 
 /// <summary>
 /// Represents a prompt containing a name, content, and an optional description.

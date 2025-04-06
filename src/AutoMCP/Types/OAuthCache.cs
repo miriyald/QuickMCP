@@ -1,4 +1,4 @@
-namespace AutoMCP.Models;
+namespace AutoMCP.Types;
 
 /// <summary>
 /// A simple in-memory cache for storing OAuth tokens with expiration handling.

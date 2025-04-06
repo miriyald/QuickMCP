@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Nodes;
 
-namespace AutoMCP.Models;
+namespace AutoMCP.Types;
 
 /// <summary>
 /// Represents a resource containing a schema and associated metadata.
