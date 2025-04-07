@@ -50,7 +50,8 @@ quickmcp build config --spec-url https://api.example.com/swagger.json --auth bea
 ### Library Integration Example
 ```csharp
 // Create and configure a server
-var serverInfoBuilder = McpServerInfoBuilder.ForOpenApi().FromUrl("https://petstore.swagger.io/v2/swagger.json")
+var serverInfoBuilder = McpServerInfoBuilder.ForOpenApi()
+    .FromUrl("https://petstore.swagger.io/v2/swagger.json")
     .WithBaseUrl("https://petstore.swagger.io")
     .AddDefaultHeader("User-Agent", "QuickMCP Client")
     .AddAuthentication(new ApiKeyAuthenticator("your-api-key", "X-API-Key", "header"));
