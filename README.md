@@ -94,7 +94,7 @@ For detailed documentation on the following topics, refer to the docs directory:
 
 ## Contributing
 
-We welcome contributions! Please check out our [Contribution Guidelines](CONTRIBUTING.md).
+We welcome contributions! Submit PR or Issues to contribute to the project.
 
 ## License
 
