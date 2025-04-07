@@ -85,7 +85,7 @@ await hostBuilder.Build().RunAsync();
 
 ## Documentation
 
-For detailed documentation on the following topics, refer to the docs directory:
+For detailed documentation on the following topics, refer to the wiki:
 
 - [Library Implementation Guide](https://github.com/gunpal5/QuickMCP/wiki/Library-Implementation-Guide)
 - [Authentication Options](https://github.com/gunpal5/QuickMCP/wiki/Authentication-Options)
