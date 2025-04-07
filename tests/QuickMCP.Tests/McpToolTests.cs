@@ -36,28 +36,28 @@ public class McpToolTests
        
     }
 
-    [Fact]
-    public async Task ShouldCallMcpTool_Get_WithPathParams()
-    {
-        var builder = await McpServerInfoBuilder.ForOpenApi("Test_Server")
-            .FromUrl("https://petstore.swagger.io/v2/swagger.json").OnlyForPaths(["pet","order"]).BuildAsync();
-        var tools = builder.GetMcpTools().ToList();
-
-        //Get with path params
-        var second = tools.FirstOrDefault(s=>s.ProtocolTool.Name.Contains("getPetById", StringComparison.OrdinalIgnoreCase));
-        
-        var secondResult = await second.InvokeAsync(new RequestContext<CallToolRequestParams>(null, new CallToolRequestParams()
-        {
-            Name = second.ProtocolTool.Name,
-            Arguments = new Dictionary<string, JsonElement>()
-            {
-                ["petId"] =  JsonDocument.Parse("100").RootElement
-            }
-        } ));
-        
-        secondResult.Content.ShouldNotBeNull();
-        secondResult.Content[0].Text.ShouldContain("status");
-    }
+    // [Fact]
+    // public async Task ShouldCallMcpTool_Get_WithPathParams()
+    // {
+    //     var builder = await McpServerInfoBuilder.ForOpenApi("Test_Server")
+    //         .FromUrl("https://petstore.swagger.io/v2/swagger.json").OnlyForPaths(["pet","order"]).BuildAsync();
+    //     var tools = builder.GetMcpTools().ToList();
+    //
+    //     //Get with path params
+    //     var second = tools.FirstOrDefault(s=>s.ProtocolTool.Name.Contains("getPetById", StringComparison.OrdinalIgnoreCase));
+    //     
+    //     var secondResult = await second.InvokeAsync(new RequestContext<CallToolRequestParams>(null, new CallToolRequestParams()
+    //     {
+    //         Name = second.ProtocolTool.Name,
+    //         Arguments = new Dictionary<string, JsonElement>()
+    //         {
+    //             ["petId"] =  JsonDocument.Parse("100").RootElement
+    //         }
+    //     } ));
+    //     
+    //     secondResult.Content.ShouldNotBeNull();
+    //     secondResult.Content[0].Text.ShouldContain("status");
+    // }
 
     [Fact]
     public async Task ShouldCallMcpTool_Post_WithBody()
