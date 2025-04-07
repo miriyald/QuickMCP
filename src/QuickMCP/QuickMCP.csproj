@@ -6,7 +6,7 @@
         <Nullable>enable</Nullable>
         <RootNamespace>QuickMCP</RootNamespace>
         <LangVersion>latest</LangVersion>
-        <Version>0.1.2</Version>
+        <Version>0.1.0</Version>
     </PropertyGroup>
     <PropertyGroup>
         <PackageId>QuickMCP</PackageId>
