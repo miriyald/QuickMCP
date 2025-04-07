@@ -7,8 +7,7 @@
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PackAsTool>true</PackAsTool>
         <Version>0.0.1</Version>
-        <ToolCommandName>quickmcp</ToolCommandName>
-       
+        <ToolCommandName>quickmcp</ToolCommandName>       
     </PropertyGroup>
     <PropertyGroup>
         <PackageId>QuickMCP.CLI</PackageId>
