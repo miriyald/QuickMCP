@@ -1,0 +1,50 @@
+name: Publish Nuget Packages
+on: 
+  workflow_dispatch:
+   
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    outputs:
+      new_version: ${{ steps.update.outputs.oldVersion }}
+    permissions:                      
+        contents: write           
+        pull-requests: write   
+    name: Updating Version
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Set project versions
+        id: update
+        uses: vers-one/dotnet-project-version-updater@v1.7
+        with:
+          file: |
+            "**/*.csproj", "**/*.nuspec", "**/AssemblyInfo.cs"
+          version: bump-build
+
+      - run: |
+          git config user.name "Gunpal Jain"
+          git config user.email "gunpal5@gmail.com"
+          git add .
+          git commit -m "Bump version to v${{ steps.update.outputs.newVersion }}"
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+            github_token: ${{ secrets.GITHUB_TOKEN }}
+            branch: ${{ github.ref }}
+  build-test-publish:   
+    name: Publishing
+    needs: [update]
+    permissions: write-all
+    uses: gunpal5/workflows/.github/workflows/dotnet_build-test-publish.yml@main    
+    secrets:
+      nuget-key: ${{ secrets.NUGET_KEY }}
+    with:
+      generate-build-number: false
+      create-release: true
+      publish: true
+      project-version: ${{ needs.update.outputs.new_version }}
+ 
+      
