@@ -5,7 +5,8 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <RootNamespace>QuickMCP</RootNamespace>
-        <LangVersion>latest</LangVersion>
+        <LangVersion>latest</LangVersion>      
+        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <Version>0.1.1</Version>
     </PropertyGroup>
     <PropertyGroup>
