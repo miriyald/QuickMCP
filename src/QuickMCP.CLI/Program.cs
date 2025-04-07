@@ -8,6 +8,7 @@ var commandApp = new CommandApp();
 
 commandApp.Configure(app =>
 {
+    app.SetApplicationName("quickmcp");
     app.AddCommand<ServerCommand>("serve").WithAlias("server").WithExample("serve","-c mcp_server_config.json");
 
     app.AddBranch<BuildCommandSettings>("build", build =>

@@ -5,7 +5,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
         <RootNamespace>QuickMCP</RootNamespace>
-        <LangVersion>latest</LangVersion>      
+        <LangVersion>latest</LangVersion>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <Version>0.1.2</Version>
     </PropertyGroup>
@@ -24,21 +24,22 @@
         <PackageIcon>favicon.png</PackageIcon>
     </PropertyGroup>
     <ItemGroup>
-        <None Include="..\..\favicon.png" Pack="True" PackagePath="" />
+        <None Include="$(MSBuildThisFileDirectory)..\..\README.md" Pack="true" PackagePath="\" Visible="false"/>
+        <None Include="..\..\favicon.png" Pack="True" PackagePath=""/>
     </ItemGroup>
 
     <!-- Dependencies only needed by netstandard2.0 -->
-    <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">       
-    </ItemGroup>
-    
-    <ItemGroup>
-        <PackageReference Include="Microsoft.OpenApi.Readers" Version="2.0.0-preview9" />
-        <PackageReference Include="Microsoft.OpenApi.YamlReader" Version="2.0.0-preview.16" />
-        <PackageReference Include="ModelContextProtocol" Version="0.1.0-preview.6" />
+    <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
     </ItemGroup>
 
     <ItemGroup>
-      <Compile Remove="Base\MCPServer.cs" />
-      <Compile Remove="Helpers\MCPServer.cs" />
+        <PackageReference Include="Microsoft.OpenApi.Readers" Version="2.0.0-preview9"/>
+        <PackageReference Include="Microsoft.OpenApi.YamlReader" Version="2.0.0-preview.16"/>
+        <PackageReference Include="ModelContextProtocol" Version="0.1.0-preview.6"/>
+    </ItemGroup>
+
+    <ItemGroup>
+        <Compile Remove="Base\MCPServer.cs"/>
+        <Compile Remove="Helpers\MCPServer.cs"/>
     </ItemGroup>
 </Project>
