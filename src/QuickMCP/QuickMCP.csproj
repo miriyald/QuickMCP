@@ -6,8 +6,25 @@
         <Nullable>enable</Nullable>
         <RootNamespace>QuickMCP</RootNamespace>
         <LangVersion>latest</LangVersion>
-        <PackageId>QuickMCP</PackageId>
+        <Version>0.0.1</Version>
     </PropertyGroup>
+    <PropertyGroup>
+        <PackageId>QuickMCP</PackageId>
+        <Title>QuickMCP - Build MCP Servers with OpenAPI and Google Discovery Effortlessly</Title>
+        <Copyright>Gunpal Jain</Copyright>
+        <Authors>Gunpal Jain</Authors>
+        <Company>Argentron Technologies</Company>
+        <PackageTags>Model Context Protocol;OpenAPI;Google Discovery;CLI;MCP;Server;</PackageTags>
+        <Description>Effortlessly build MCP servers using OpenAPI and Google Discovery specifications.</Description>
+        <Authors>Gunpal Jain</Authors>
+        <PackageProjectUrl>https://github.com/gunpal5/QuickMCP</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/gunpal5/QuickMCP</RepositoryUrl>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageIcon>favicon.png</PackageIcon>
+    </PropertyGroup>
+    <ItemGroup>
+        <None Include="..\..\favicon.png" Pack="True" PackagePath="" />
+    </ItemGroup>
 
     <!-- Dependencies only needed by netstandard2.0 -->
     <ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">       

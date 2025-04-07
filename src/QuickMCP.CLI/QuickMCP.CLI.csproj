@@ -6,15 +6,22 @@
         <Nullable>enable</Nullable>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
         <PackAsTool>true</PackAsTool>
-        <Version>0.0.1-preview-1</Version>
-        <PackageId>$(AssemblyName)</PackageId>
+        <Version>0.0.1</Version>
+        <ToolCommandName>quickmcp</ToolCommandName>
+       
+    </PropertyGroup>
+    <PropertyGroup>
+        <PackageId>QuickMCP.CLI</PackageId>
         <Title>Command Line Utility to Build and Serve Model Context Protocol (MCP) Servers</Title>
         <Copyright>Gunpal Jain</Copyright>
         <Authors>Gunpal Jain</Authors>
         <Company>Argentron Technologies</Company>
-        <PackageTags>CLI;MCP;Server;Model Context Protocol;OpenAPI;Google Discovery;</PackageTags>
+        <PackageTags>Model Context Protocol;OpenAPI;Google Discovery;CLI;MCP;Server;</PackageTags>
         <Description>A command-line utility designed to effortlessly build and serve MCP servers with OpenAPI, Google Discovery specifications using modern .NET technologies.</Description>
         <Authors>Gunpal Jain</Authors>
+        <PackageProjectUrl>https://github.com/gunpal5/QuickMCP</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/gunpal5/QuickMCP</RepositoryUrl>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
     </PropertyGroup>
     <ItemGroup>
         <None Include="..\..\favicon.png" Pack="True" PackagePath="" />
