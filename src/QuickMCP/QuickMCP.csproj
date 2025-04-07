@@ -19,7 +19,7 @@
         <Authors>Gunpal Jain</Authors>
         <PackageProjectUrl>https://github.com/gunpal5/QuickMCP</PackageProjectUrl>
         <RepositoryUrl>https://github.com/gunpal5/QuickMCP</RepositoryUrl>
-        <PackageReadmeFile>..\..\README.md</PackageReadmeFile>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
         <PackageIcon>favicon.png</PackageIcon>
     </PropertyGroup>
     <ItemGroup>
