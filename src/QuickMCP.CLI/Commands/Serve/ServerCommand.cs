@@ -21,6 +21,17 @@ public class ServerCommand : AsyncCommand<ServerCommandSettings>
         if (!string.IsNullOrWhiteSpace(configEnvVar))
             configFile = Environment.GetEnvironmentVariable(configEnvVar);
 
+        if (!string.IsNullOrWhiteSpace(settings.ServerId))
+        {
+            var localFolder = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
+                ".quickmcp");
+            var serverFolder = Path.Combine(localFolder, "servers", settings.ServerId);
+            configFile = Path.Combine(serverFolder, "config.json");
+            if (!File.Exists(configFile))
+                throw new FileNotFoundException(
+                    $"Server configuration file not found for {settings.ServerId} at `{configFile}`");
+        }
+
         if (settings.EnableLogging == true)
             AnsiConsole.MarkupLine($"[bold]Building MCP server info with configuration file:[/] {configFile}");
 
@@ -41,13 +52,12 @@ public class ServerCommand : AsyncCommand<ServerCommandSettings>
         }
         else
         {
-            
         }
 
         var mcpServerInfo = await infoBuilder.BuildAsync();
         if (settings.EnableLogging == true)
             AnsiConsole.MarkupLine($"[bold]Initializing MCP server...[/]");
-        
+
         var hostBuilder = Host.CreateApplicationBuilder();
         var mcpBuilder = hostBuilder.Services
             .AddMcpServer()
@@ -71,18 +81,17 @@ public class ServerCommand : AsyncCommand<ServerCommandSettings>
         //     mcpBuilder.WithListResourcesHandler((a, b) => Task.FromResult(new ListResourcesResult()));
         // }
 
-        if (settings.EnableLogging == true)
+
+        var logLevel = settings.EnableLogging == true ? LogLevel.Debug : LogLevel.None;
+
+        hostBuilder.Logging.SetMinimumLevel(logLevel).AddSpectreConsole(config =>
         {
-            var logLevel = settings.EnableLogging == true ? LogLevel.Debug : LogLevel.None;
+            config.SetMinimumLevel(logLevel);
+        });
 
-            hostBuilder.Logging.SetMinimumLevel(logLevel).AddSpectreConsole(config =>
-            {
-                config.SetMinimumLevel(logLevel);
-            });
-        }
 
         if (settings.EnableLogging == true)
-            AnsiConsole.MarkupLine($"[bold]Starting MCP server...[/]");
+            AnsiConsole.MarkupLine($"[bold]MCP server started...[/]");
         //AnsiConsole.MarkupLine("[green]MCP Server Started (Press Ctrl+C to exit)[/]");
         await hostBuilder.Build().RunAsync();
         return 0;

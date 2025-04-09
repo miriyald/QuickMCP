@@ -9,6 +9,7 @@ using QuickMCP.Types;
 using GenerativeAI;
 using GenerativeAI.Types;
 using GenerativeAI.Utility;
+using QuickMCP.Builders;
 using Spectre.Console;
 using Spectre.Console.Cli;
 
@@ -23,7 +24,7 @@ public class BuildConfigCommand : AsyncCommand<BuildConfigCommandSettings>
         var config = settings.GetBuilderConfig();
 
         AnsiConsole.MarkupLine("[bold yellow]Starting metadata generation...[/]");
-
+        
         var mcpServerInfo = await QuickMCP.Builders.McpServerInfoBuilder.FromConfig(config).BuildAsync();
         AnsiConsole.MarkupLine($"[bold green]MCP Server info initialized with {mcpServerInfo.Tools.Count} tools[/]");
 

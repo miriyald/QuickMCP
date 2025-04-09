@@ -26,6 +26,7 @@
         <None Include="$(MSBuildThisFileDirectory)..\..\README.md" Pack="true" PackagePath="\" Visible="false"/>
     </ItemGroup>
     <ItemGroup>
+      <PackageReference Include="Firecrawl" Version="1.1.1-dev.4" />
       <PackageReference Include="Google_GenerativeAI" Version="2.5.5" />
       <PackageReference Include="Microsoft.Extensions.Hosting" Version="10.0.0-preview.2.25163.2" />
       <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="10.0.0-preview.2.25163.2" />

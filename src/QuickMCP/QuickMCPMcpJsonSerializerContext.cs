@@ -22,6 +22,7 @@ namespace QuickMCP;
 [JsonSerializable(typeof(UpdatedParameterMetadata))]
 [JsonSerializable(typeof(List<UpdatedToolMetadata>))]
 [JsonSerializable(typeof(UpdatedToolMetadata))]
+[JsonSerializable(typeof(ServerConfiguration))]
 [JsonSourceGenerationOptions(PropertyNamingPolicy = JsonKnownNamingPolicy.CamelCase, WriteIndented = true,UseStringEnumConverter = true, DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull)]
 public partial class QuickMcpJsonSerializerContext:JsonSerializerContext
 {

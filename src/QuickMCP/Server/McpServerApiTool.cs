@@ -86,7 +86,7 @@ public class McpServerApiTool : McpServerTool
                          _toolInfo.Method.Equals("PUT", StringComparison.OrdinalIgnoreCase) ||
                          _toolInfo.Method.Equals("PATCH", StringComparison.OrdinalIgnoreCase))
                 {
-                   requestBody = arguments ?? new Dictionary<string, JsonElement>();
+                   requestBody = arguments.ToDictionary(s=>s.Key,y=>y.Value) ?? new Dictionary<string, JsonElement>();
                 }
             }
         }

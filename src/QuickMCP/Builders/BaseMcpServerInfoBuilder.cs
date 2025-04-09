@@ -432,6 +432,7 @@ public abstract class BaseMcpServerInfoBuilder : IMcpServerInfoBuilder
             if (tool != null)
             {
                 function.Name = tool.NewName ?? function.Name;
+                function.Name = StringHelpers.SanitizeToolName(function.Name);
                 function.Metadata.Description = tool.Description ?? function.Metadata.Description;
                 function.Metadata.Tags = tool.Tags ?? function.Metadata.Tags;
                 function.Metadata.Name = tool.Name ?? function.Metadata.Name;

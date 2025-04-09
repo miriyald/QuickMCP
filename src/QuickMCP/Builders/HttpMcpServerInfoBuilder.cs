@@ -27,6 +27,8 @@ public abstract class HttpMcpServerInfoBuilder : BaseMcpServerInfoBuilder
     {
         base.FromConfiguration(configPath);
         var config = LoadConfigurationAsync<BuilderConfig>(configPath).Result;
+        BaseMcpServerInfoBuilder.AdjustPaths(config, configPath);
+        this.ConfigFilePath = null;
         return WithConfig(config);
     }
 

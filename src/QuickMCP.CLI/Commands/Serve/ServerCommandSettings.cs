@@ -26,8 +26,8 @@ public class ServerCommandSettings : CommandSettings
     public string? SpecPath { get; set; }
     
     [Description("The name of the server to use.")]
-    [CommandOption("-n|--server-name <SERVER_NAME>")]
-    public string? ServerName { get; set; }
+    [CommandOption("-i|--server-id <SERVER_ID>")]
+    public string? ServerId { get; set; }
     
     [Description("Base URL for the API.")]
     [CommandOption("-a|--api-base-url <API_BASE_URL>")]
@@ -39,8 +39,8 @@ public class ServerCommandSettings : CommandSettings
 
     public override ValidationResult Validate()
     {
-        if (string.IsNullOrWhiteSpace(ConfigPath) && string.IsNullOrWhiteSpace(ConfigEnvVar) && string.IsNullOrEmpty(SpecPath) && string.IsNullOrEmpty(SpecUrl))
-            return ValidationResult.Error("You must specify a configuration file or environment variable or a specification file or url.");
+        if (string.IsNullOrWhiteSpace(ConfigPath) && string.IsNullOrWhiteSpace(ConfigEnvVar) && string.IsNullOrEmpty(SpecPath) && string.IsNullOrEmpty(SpecUrl) && string.IsNullOrEmpty(ServerId))
+            return ValidationResult.Error("You must specify a Server name or configuration file or environment variable or a specification file or url.");
         
         if(!string.IsNullOrEmpty(ConfigPath) && !File.Exists(ConfigPath))
             return ValidationResult.Error($"The configuration file {ConfigPath} does not exist.");
@@ -52,8 +52,10 @@ public class ServerCommandSettings : CommandSettings
             if(!File.Exists(envVar))
                 return ValidationResult.Error($"The configuration file {envVar} does not exist.");
         }
-        if (!string.IsNullOrEmpty(SpecPath) && !File.Exists(SpecPath))
+        if (!string.IsNullOrEmpty(SpecPath) && !File.Exists(SpecPath) )
             return ValidationResult.Error($"The specification file {SpecPath} does not exist.");
+        
+        
         
         return base.Validate();
     }
@@ -64,7 +66,7 @@ public class ServerCommandSettings : CommandSettings
         {
             ApiBaseUrl = ApiBaseUrl,
             ApiSpecPath = SpecPath,
-            ServerName = ServerName,
+            ServerName = ServerId,
             ApiSpecUrl = SpecUrl
         };
     }

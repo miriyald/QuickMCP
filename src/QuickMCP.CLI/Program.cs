@@ -1,5 +1,7 @@
 ﻿using QuickMCP.CLI.Commands;
+using QuickMCP.CLI.Commands.Add;
 using QuickMCP.CLI.Commands.Build;
+using QuickMCP.CLI.Commands.Delete;
 using QuickMCP.CLI.Commands.List;
 using QuickMCP.CLI.Commands.Serve;
 using Spectre.Console.Cli;
@@ -15,12 +17,26 @@ commandApp.Configure(app =>
     {
         build.SetDescription("Build a MCP server configuration file and more");
         build.AddCommand<BuildConfigCommand>("config").WithAlias("config-file").WithAlias("config-file");
+        build.AddCommand<BuildSpecCommand>("spec").WithExample("build spec", "-d url_to_documentation");
     });
     
     app.AddBranch<ListCommandSettings>("list", list =>
     {
         list.SetDescription("List available configuration options such as authenticators");
         list.AddCommand<ListAuthenticatorsCommand>("auth").WithAlias("authenticator").WithAlias("authenticators");
+        list.AddCommand<ListServerCommand>("server");
+    });
+
+    app.AddBranch<AddCommandSettings>("add", add =>
+    {
+        add.SetDescription("Add a new configuration option e.g. server");
+        add.AddCommand<AddServerCommand>("server").WithExample("add server", "/path/to/config.json -n MyServer");
+    });
+    
+    app.AddBranch<DeleteCommandSettings>("delete", add =>
+    {
+        add.SetDescription("Add a new configuration option e.g. server");
+        add.AddCommand<DeleteServerCommand>("server").WithExample("add server", "/path/to/config.json -n MyServer");
     });
 });
 return await commandApp.RunAsync(args).ConfigureAwait(false);
