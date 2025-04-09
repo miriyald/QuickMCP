@@ -37,4 +37,18 @@
     <ItemGroup>
       <ProjectReference Include="..\QuickMCP\QuickMCP.csproj" />
     </ItemGroup>
+    <ItemGroup>
+      <None Remove="Resources\setup.sh" />
+      <Content Include="Resources\setup.bat">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+      <None Remove="Resources\setup-linux.sh" />
+      <Content Include="Resources\setup-linux.sh">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+      <None Remove="Resources\setup-mac-os.sh" />
+      <Content Include="Resources\setup-mac-os.sh">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+    </ItemGroup>
 </Project>
