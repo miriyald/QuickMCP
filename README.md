@@ -91,6 +91,17 @@ await hostBuilder.Build().RunAsync();
   }
 }
 ```
+or Use installed server
+```json
+{
+  "mcpServers": {
+    "petStore": {
+      "command": "quickmcp",
+      "args": ["serve", "-i", "server_id"]
+    }
+  }
+}
+```
 
 ## Documentation
 
