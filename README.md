@@ -52,6 +52,9 @@ quickmcp add server /path/to/config.json -n MyServer
 # List available servers
 quickmcp list server
 
+# Serve installed server
+quickmcp serve -i myServer
+
 # Remove a stored server configuration
 quickmcp delete server MyServer
 ```
