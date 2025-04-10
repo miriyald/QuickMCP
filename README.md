@@ -45,6 +45,15 @@ quickmcp serve --config-path ./config/mcp_server_config.json
 
 # Add authentication to your configuration
 quickmcp build config --spec-url https://api.example.com/swagger.json --auth bearer
+
+# Add a server configuration for quick access
+quickmcp add server /path/to/config.json -n MyServer
+
+# List available servers
+quickmcp list server
+
+# Remove a stored server configuration
+quickmcp delete server MyServer
 ```
 
 ### Library Integration Example
