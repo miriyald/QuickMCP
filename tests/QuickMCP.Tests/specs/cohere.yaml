@@ -150,7 +150,7 @@ paths:
                   x-fern-audiences:
                     - public
                 seed:
-                  maximum: 18446744073709552000
+                  maximum: 18446744073709551610
                   minimum: 0
                   type: integer
                   description: "If specified, the backend will make a best effort to sample tokens\ndeterministically, such that repeated requests with the same\nseed and parameters should return the same result. However,\ndeterminism cannot be totally guaranteed.\n\nCompatible Deployments: Cohere Platform, Azure, AWS Sagemaker/Bedrock, Private Deployments\n"

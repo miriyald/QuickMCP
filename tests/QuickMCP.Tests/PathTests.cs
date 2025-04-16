@@ -1,4 +1,5 @@
-﻿using QuickMCP.Helpers;
+﻿using Firecrawl;
+using QuickMCP.Helpers;
 
 namespace QuickMCP.Tests;
 
@@ -9,4 +10,5 @@ public class PathHelperTests
     {
         var fileName = PathHelper.GetFullPath("config.json");
     }
+    
 }

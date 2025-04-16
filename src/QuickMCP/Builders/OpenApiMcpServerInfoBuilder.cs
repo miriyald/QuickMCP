@@ -7,8 +7,11 @@ using QuickMCP.Types;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Extensions;
 using Microsoft.OpenApi.Models;
-using Microsoft.OpenApi.Models.Interfaces;
-using Microsoft.OpenApi.Reader;
+using Microsoft.OpenApi.Readers;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using SharpYaml.Serialization;
+using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace QuickMCP.Builders;
 
@@ -17,7 +20,6 @@ namespace QuickMCP.Builders;
 /// </summary>
 public class OpenApiMcpServerInfoBuilder : HttpMcpServerInfoBuilder
 {
-   
     private OpenApiDocument? _openApiDocument;
 
     /// <summary>
@@ -67,7 +69,7 @@ public class OpenApiMcpServerInfoBuilder : HttpMcpServerInfoBuilder
             if (!string.IsNullOrEmpty(ConfigFilePath))
             {
                 var config = await LoadConfigurationAsync<BuilderConfig>(ConfigFilePath);
-                
+
                 if (config != null)
                 {
                     return await ProcessConfigurationAsync(config);
@@ -81,7 +83,7 @@ public class OpenApiMcpServerInfoBuilder : HttpMcpServerInfoBuilder
             {
                 _openApiDocument = await LoadOpenApiFromFileAsync(OpenApiFilePath);
             }
-            
+
             if (_openApiDocument == null)
             {
                 Logger?.LogWarning("No OpenAPI document was loaded. No tools will be registered.");
@@ -122,19 +124,30 @@ public class OpenApiMcpServerInfoBuilder : HttpMcpServerInfoBuilder
         {
             Logger?.LogInformation("Loading OpenAPI spec from URL: {Url}", url);
 
-            var result = await OpenApiDocument.LoadAsync(url);
-
-
-            if (result.Diagnostic.Errors.Count > 0)
+            var httpResponse = await HttpClient.GetAsync(url);
+            if (!httpResponse.IsSuccessStatusCode)
             {
-                foreach (var error in result.Diagnostic.Errors)
+                Logger?.LogError("Failed to fetch OpenAPI spec from URL with status code: {StatusCode}",
+                    httpResponse.StatusCode);
+                return null;
+            }
+
+            var fileContent = await httpResponse.Content.ReadAsStringAsync();
+            
+            fileContent = ConvertToOpenApi30Json(url,fileContent);
+            var result = new OpenApiStringReader().Read(fileContent, out var diagnostic);
+
+
+            if (diagnostic.Errors.Count > 0)
+            {
+                foreach (var error in diagnostic.Errors)
                 {
                     Logger?.LogWarning("OpenAPI parsing error: {Error}", error);
                 }
             }
 
             Logger?.LogInformation("Successfully loaded OpenAPI spec from URL");
-            return result.Document;
+            return result;
         }
         catch (Exception ex)
         {
@@ -160,10 +173,9 @@ public class OpenApiMcpServerInfoBuilder : HttpMcpServerInfoBuilder
             var fileContent = await File.ReadAllTextAsync(filePath);
 #endif
 
-
-            var result = OpenApiDocument.Parse(fileContent);
-
-            var diagnostic = result.Diagnostic;
+            fileContent = ConvertToOpenApi30Json(filePath,fileContent);
+            var reader = new OpenApiStringReader();
+            var result = reader.Read(fileContent, out var diagnostic);
 
             if (diagnostic.Errors.Count > 0)
             {
@@ -174,12 +186,67 @@ public class OpenApiMcpServerInfoBuilder : HttpMcpServerInfoBuilder
             }
 
             Logger?.LogInformation("Successfully loaded OpenAPI spec from file");
-            return result.Document;
+            return result;
         }
         catch (Exception ex)
         {
+            
+            
             Logger?.LogError(ex, "Failed to load OpenAPI spec from file: {FilePath}", filePath);
             return null;
+        }
+    }
+
+    private string ConvertToOpenApi30Json(string inputFile, string input)
+    {
+        try
+        {
+            if (OpenApi31Support.IsOpenApi31(input))
+            {
+                var options = new ConverterOptions
+                {
+                    Verbose = false,
+                    DeleteExampleWithId = true,
+                    AllOfTransform = true,
+                    ConvertOpenIdConnectToOAuth2 = true,
+                    ConvertSchemaComments = true
+                };
+
+                // Read input file
+                JObject openapiDocument;
+
+                if (inputFile.EndsWith(".yaml") || inputFile.EndsWith(".yml"))
+                {
+                    var serializer = new SharpYaml.Serialization.Serializer(
+                        new SerializerSettings
+                        {
+                            NamingConvention = new CamelCaseNamingConvention(),
+                        });
+
+                    var yamlObject = serializer.Deserialize<object>(input);
+                    string json = JsonSerializer.Serialize(yamlObject);
+                    openapiDocument = JObject.Parse(json);
+                }
+                else
+                {
+                    // Assume JSON
+                    openapiDocument = JObject.Parse(input);
+                }
+
+                // Create converter and convert
+                var converter = new Converter(openapiDocument, options);
+                var converted = converter.Convert();
+
+                return JsonConvert.SerializeObject(converted);
+            }
+            else
+            {
+                return input;
+            }
+        }
+        catch
+        {
+            return OpenApi31Support.ConvertToOpenApi30(input);
         }
     }
 
@@ -194,7 +261,7 @@ public class OpenApiMcpServerInfoBuilder : HttpMcpServerInfoBuilder
         {
             InitializeFromConfig(config);
             // Set up authentication if configured
-            
+
 
             // Process OpenAPI URL if provided
             if (!string.IsNullOrEmpty(config.ApiSpecUrl))
@@ -205,7 +272,7 @@ public class OpenApiMcpServerInfoBuilder : HttpMcpServerInfoBuilder
             {
                 _openApiDocument = await LoadOpenApiFromFileAsync(config.ApiSpecPath);
             }
-            
+
             if (_openApiDocument != null)
             {
                 ProcessOpenApiDocumentAsync(_openApiDocument);
@@ -263,6 +330,7 @@ public class OpenApiMcpServerInfoBuilder : HttpMcpServerInfoBuilder
             {
                 ServerDescription = openApiDoc.Info?.Description ?? $"{ServerName} MCP Server";
             }
+
             var operationsInfo = ExtractOperationsInfo(openApiDoc);
 
             // Apply filters
@@ -307,7 +375,6 @@ public class OpenApiMcpServerInfoBuilder : HttpMcpServerInfoBuilder
     /// <exception cref="Exception">Thrown when no server URL is found in the OpenAPI document.</exception>
     private string DetermineServerUrl(OpenApiDocument openApiDoc)
     {
-        
         // Extract server URL from the OpenAPI document
         if (!string.IsNullOrEmpty(BaseUrl))
             return BaseUrl;
@@ -348,7 +415,7 @@ public class OpenApiMcpServerInfoBuilder : HttpMcpServerInfoBuilder
                 // Extract response schema
                 var responseSchema = ExtractResponseSchema(op);
 
-               
+
                 // Create operation info
                 operationsInfo[sanitizedOpId] = new OperationInfo
                 {
@@ -447,7 +514,7 @@ public class OpenApiMcpServerInfoBuilder : HttpMcpServerInfoBuilder
             response.Content != null && response.Content.Count > 0)
         {
             var mediaType = response.Content.FirstOrDefault().Value;
-            if( mediaType.Schema != null)
+            if (mediaType.Schema != null)
                 return ConvertOpenApiSchemaToJsonNode(mediaType.Schema);
         }
 
@@ -459,7 +526,7 @@ public class OpenApiMcpServerInfoBuilder : HttpMcpServerInfoBuilder
     /// </summary>
     /// <param name="schema">The OpenAPI schema to be converted. Can be null.</param>
     /// <returns>A JSON object representing the structure of the provided OpenAPI schema.</returns>
-    private JsonObject ConvertOpenApiSchemaToJsonNode(IOpenApiSchema? schema)
+    private JsonObject ConvertOpenApiSchemaToJsonNode(OpenApiSchema? schema)
     {
         if (schema == null)
         {
@@ -467,7 +534,7 @@ public class OpenApiMcpServerInfoBuilder : HttpMcpServerInfoBuilder
         }
 
         var result = new JsonObject();
-        result["type"] = schema.Type.ToIdentifiers()?.FirstOrDefault() ?? "object";
+        result["type"] = schema.Type; //.ToIdentifiers()?.FirstOrDefault() ?? "object";
 
         if (schema.Description != null)
         {
@@ -536,7 +603,7 @@ public class OpenApiMcpServerInfoBuilder : HttpMcpServerInfoBuilder
             var name = param.Name;
             var pSchema = param.Schema;
 
-            
+
             if (pSchema != null)
             {
                 properties[name] = pSchema;
@@ -591,8 +658,8 @@ public class OpenApiMcpServerInfoBuilder : HttpMcpServerInfoBuilder
         }
         else
         {
-            
         }
+
         metadata.Parameters = info.Parameters;
         return metadata;
     }

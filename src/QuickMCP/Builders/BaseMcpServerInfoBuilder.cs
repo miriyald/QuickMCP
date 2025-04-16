@@ -7,7 +7,6 @@ using QuickMCP.Http;
 using QuickMCP.Types;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.OpenApi.Reader;
 using Microsoft.OpenApi.Readers;
 
 namespace QuickMCP.Builders;
@@ -120,7 +119,7 @@ public abstract class BaseMcpServerInfoBuilder : IMcpServerInfoBuilder
 
     static BaseMcpServerInfoBuilder()
     {
-        OpenApiReaderRegistry.RegisterReader("yaml", new OpenApiYamlReader());
+        //OpenApiReaderRegistry.RegisterReader("yaml", new OpenApiYamlReader());
     }
 
     /// <summary>
