@@ -96,18 +96,15 @@ public class BuildConfigCommand : AsyncCommand<BuildConfigCommandSettings>
             File.Copy(fileName, metadataFile, true);
         }
 
-        //Todo Write Install Batch File
+       
         var installBatchFile = Path.Combine(outputPath, $"setup.bat");
-        var path = PathHelper.GetFullPath("Resources\\setup.bat");
-        File.Copy(path, installBatchFile, true);
-        
-        path = PathHelper.GetFullPath("Resources\\setup-linux.sh");
+        await File.WriteAllBytesAsync(installBatchFile,QuickMCP.CLI.Resources.setup);
+
         installBatchFile = Path.Combine(outputPath, $"setup-linux.sh");
-        File.Copy(path, installBatchFile, true);
+        await File.WriteAllBytesAsync(installBatchFile,QuickMCP.CLI.Resources.setup_linux);
         
-        path = PathHelper.GetFullPath("Resources\\setup-linux.sh");
         installBatchFile = Path.Combine(outputPath, $"setup-mac-os.sh");
-        File.Copy(path, installBatchFile, true);
+        await File.WriteAllBytesAsync(installBatchFile,QuickMCP.CLI.Resources.setup_mac_os);
 
         AnsiConsole.MarkupLine("[bold yellow]Writing configuration to file...[/]");
         await File.WriteAllTextAsync(configFile,

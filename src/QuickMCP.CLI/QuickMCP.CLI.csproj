@@ -39,16 +39,27 @@
     </ItemGroup>
     <ItemGroup>
       <None Remove="Resources\setup.sh" />
-      <Content Include="Resources\setup.bat">
+      <Resource Include="Resources\setup.bat">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
+      </Resource>
       <None Remove="Resources\setup-linux.sh" />
-      <Content Include="Resources\setup-linux.sh">
+      <Resource Include="Resources\setup-linux.sh">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
+      </Resource>
       <None Remove="Resources\setup-mac-os.sh" />
-      <Content Include="Resources\setup-mac-os.sh">
+      <Resource Include="Resources\setup-mac-os.sh">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
+      </Resource>
+      <EmbeddedResource Update="Resources.resx">
+        <Generator>ResXFileCodeGenerator</Generator>
+        <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      </EmbeddedResource>
+    </ItemGroup>
+    <ItemGroup>
+      <Compile Update="Resources.Designer.cs">
+        <DesignTime>True</DesignTime>
+        <AutoGen>True</AutoGen>
+        <DependentUpon>Resources.resx</DependentUpon>
+      </Compile>
     </ItemGroup>
 </Project>
