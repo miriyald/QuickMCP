@@ -1,4 +1,6 @@
-﻿namespace QuickMCP.Helpers;
+﻿using System.Diagnostics;
+
+namespace QuickMCP.Helpers;
 
 public static class PathHelper
 {
@@ -12,6 +14,7 @@ public static class PathHelper
             if(additionalPaths != null)
                 listLookUpDirectories.AddRange(additionalPaths);
             listLookUpDirectories.Add(Environment.CurrentDirectory);
+            listLookUpDirectories.Add(Path.GetDirectoryName(Process.GetCurrentProcess().MainModule?.FileName ?? string.Empty) ?? string.Empty);
             listLookUpDirectories.Add(Directory.GetCurrentDirectory());
            
             var path = Environment.GetEnvironmentVariable("PATH");
@@ -27,6 +30,11 @@ public static class PathHelper
                 if (File.Exists(fullPath))
                 {
                     return fullPath;
+                }
+                var fullPath2 = Path.Combine(directory, fileName);
+                if (File.Exists(fullPath2))
+                {
+                    return fullPath2;
                 }
             }
         }
