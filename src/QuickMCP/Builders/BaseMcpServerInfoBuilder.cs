@@ -1,13 +1,10 @@
-﻿using System.Diagnostics;
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Nodes;
 using QuickMCP.Abstractions;
 using QuickMCP.Helpers;
-using QuickMCP.Http;
 using QuickMCP.Types;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
-using Microsoft.OpenApi.Readers;
 
 namespace QuickMCP.Builders;
 

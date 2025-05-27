@@ -62,7 +62,9 @@ public class ServerCommand : AsyncCommand<ServerCommandSettings>
         var mcpBuilder = hostBuilder.Services
             .AddMcpServer()
             .WithQuickMCP(mcpServerInfo)
-            .WithStdioServerTransport();
+        //.WithHttpTransport();
+        .WithStdioServerTransport();
+
 
         // if (mcpServerInfo.PromptCount == 0)
         // {

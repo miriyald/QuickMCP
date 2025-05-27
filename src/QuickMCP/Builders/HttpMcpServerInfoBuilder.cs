@@ -1,10 +1,8 @@
-﻿using System.Text;
-using System.Text.Json;
+﻿using System.Text.Json;
 using QuickMCP.Abstractions;
 using QuickMCP.Authentication;
 using QuickMCP.Http;
 using QuickMCP.Types;
-using Microsoft.Extensions.Logging;
 
 namespace QuickMCP.Builders;
 public abstract class HttpMcpServerInfoBuilder : BaseMcpServerInfoBuilder
