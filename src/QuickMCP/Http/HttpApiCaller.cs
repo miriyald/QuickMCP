@@ -2,7 +2,7 @@
 using System.Text.Json;
 using QuickMCP.Abstractions;
 using Microsoft.Extensions.Logging;
-using ModelContextProtocol.Protocol.Types;
+using ModelContextProtocol.Protocol;
 
 namespace QuickMCP.Http;
 

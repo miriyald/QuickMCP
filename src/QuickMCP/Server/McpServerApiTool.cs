@@ -2,8 +2,8 @@
 using QuickMCP.Http;
 using QuickMCP.Types;
 using Microsoft.OpenApi.Models;
-using ModelContextProtocol.Protocol.Types;
 using ModelContextProtocol.Server;
+using ModelContextProtocol.Protocol;
 
 namespace QuickMCP.Server;
 
@@ -22,7 +22,7 @@ public class McpServerApiTool : McpServerTool
         ProtocolTool = info.ToProtocolTool();
     }
     /// <inheritdoc/>
-    public override async Task<CallToolResponse> InvokeAsync(RequestContext<CallToolRequestParams> request,
+    public override async ValueTask<CallToolResponse> InvokeAsync(RequestContext<CallToolRequestParams> request,
         CancellationToken cancellationToken = new CancellationToken())
     {
         string url = _toolInfo.Url;
@@ -42,7 +42,7 @@ public class McpServerApiTool : McpServerTool
                     {
                         if (!arguments.TryGetValue(p.Name, out var value))
                         {
-                            if(p.Required == true)
+                            if (p.Required == true)
                                 throw new Exception($"Missing parameter {p.Name}");
                         }
                         else
@@ -54,7 +54,7 @@ public class McpServerApiTool : McpServerTool
                     {
                         if (!arguments.TryGetValue(p.Name, out var value))
                         {
-                            if(p.Required == true)
+                            if (p.Required == true)
                                 throw new Exception($"Missing parameter {p.Name}");
                         }
                         else
@@ -86,7 +86,7 @@ public class McpServerApiTool : McpServerTool
                          _toolInfo.Method.Equals("PUT", StringComparison.OrdinalIgnoreCase) ||
                          _toolInfo.Method.Equals("PATCH", StringComparison.OrdinalIgnoreCase))
                 {
-                   requestBody = arguments.ToDictionary(s=>s.Key,y=>y.Value) ?? new Dictionary<string, JsonElement>();
+                    requestBody = arguments.ToDictionary(s => s.Key, y => y.Value) ?? new Dictionary<string, JsonElement>();
                 }
             }
         }
