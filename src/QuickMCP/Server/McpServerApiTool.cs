@@ -23,12 +23,13 @@ public class McpServerApiTool : McpServerTool
     }
     /// <inheritdoc/>
     public override async ValueTask<CallToolResponse> InvokeAsync(RequestContext<CallToolRequestParams> request,
-        CancellationToken cancellationToken = new CancellationToken())
+                                                                  CancellationToken cancellationToken = new CancellationToken())
     {
         string url = _toolInfo.Url;
         Dictionary<string, JsonElement>? requestBody = null;
         var pathParams = new Dictionary<string, string?>();
         var queryParams = new List<KeyValuePair<string, string?>>();
+        var headerParams = new List<KeyValuePair<string, string?>>();
         var arguments = request.Params?.Arguments;
         if (arguments != null)
         {
@@ -70,6 +71,26 @@ public class McpServerApiTool : McpServerTool
                                 queryParams.Add(new KeyValuePair<string, string>(p.Name, value.GetRawText().Replace("\"", "")));
                         }
                     }
+                    else if (p.In == ParameterLocation.Header.ToString().ToLower())
+                    {
+                        if (!arguments.TryGetValue(p.Name, out var value))
+                        {
+                            if (p.Required == true)
+                                throw new Exception($"Missing parameter {p.Name}");
+                        }
+                        else
+                        {
+                            if (value.ValueKind == JsonValueKind.Array)
+                            {
+                                foreach (var item in value.EnumerateArray())
+                                {
+                                    headerParams.Add(new KeyValuePair<string, string>($"{p.Name}", item.GetRawText().Replace("\"", "")));
+                                }
+                            }
+                            else
+                                headerParams.Add(new KeyValuePair<string, string>(p.Name, value.GetRawText().Replace("\"", "")));
+                        }
+                    }
                 }
 
                 if (_toolInfo.Method.Equals("GET", StringComparison.OrdinalIgnoreCase))
@@ -91,9 +112,7 @@ public class McpServerApiTool : McpServerTool
             }
         }
 
-        return await _caller.Call(new HttpMethod(_toolInfo.Method), url, content: requestBody,
-            _toolInfo.MimeType ?? "application/json",
-            queryParams, pathParams, cancellationToken);
+        return await _caller.Call(new HttpMethod(_toolInfo.Method), url, content: requestBody, _toolInfo.MimeType ?? "application/json", queryParams, headerParams, pathParams, cancellationToken);
     }
 
     public override Tool ProtocolTool { get; }
