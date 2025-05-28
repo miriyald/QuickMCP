@@ -1,10 +1,9 @@
 ﻿using System.Text.Json;
+using Microsoft.OpenApi.Models;
+using ModelContextProtocol.Protocol;
+using ModelContextProtocol.Server;
 using QuickMCP.Http;
 using QuickMCP.Types;
-using Microsoft.OpenApi.Models;
-using ModelContextProtocol.Server;
-using ModelContextProtocol.Protocol;
-
 namespace QuickMCP.Server;
 
 /// <inheritdoc/>
@@ -22,9 +21,12 @@ public class McpServerApiTool : McpServerTool
         ProtocolTool = info.ToProtocolTool();
     }
     /// <inheritdoc/>
-    public override async ValueTask<CallToolResponse> InvokeAsync(RequestContext<CallToolRequestParams> request,
-        CancellationToken cancellationToken = new CancellationToken())
+    public override async ValueTask<CallToolResponse> InvokeAsync(RequestContext<CallToolRequestParams> request, CancellationToken cancellationToken = new CancellationToken())
     {
+        var loggerService = request.Services?.GetService(typeof(RequestHeaderLoggingService)) as RequestHeaderLoggingService;
+        var token = loggerService?.GetToken();
+        Console.WriteLine(token);
+
         string url = _toolInfo.Url;
         Dictionary<string, JsonElement>? requestBody = null;
         var pathParams = new Dictionary<string, string?>();

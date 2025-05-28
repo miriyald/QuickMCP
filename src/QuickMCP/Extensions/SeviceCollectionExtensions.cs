@@ -10,7 +10,6 @@ public static class McpServerBuilderExtensions
         foreach (var tool in mcpServerInfo.GetMcpTools())
         {
             builder.Services.AddSingleton(tool);
-            
         }
 
         return builder;

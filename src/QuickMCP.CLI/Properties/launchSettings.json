@@ -2,7 +2,7 @@
   "profiles": {
     "QuickMCP.CLI": {
       "commandName": "Project",
-      "commandLineArgs": "serve, \"-c\", \"C:\\Working\\Edfx\\edfx-api-mcp\\tessera\\tessera-mcp-config.json\""
+      "commandLineArgs": "build config --spec-url https://497d6c36-6b1a-49fb-a136-ad046a1d394d.mock.pstmn.io/rpa --auth bearer --output-path c:/tmp/rpa"
     }
   }
 }

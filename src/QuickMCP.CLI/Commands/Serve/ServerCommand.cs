@@ -3,9 +3,12 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using ModelContextProtocol.AspNetCore;
+using ModelContextProtocol.Server;
 using QuickMCP.Abstractions;
 using QuickMCP.Builders;
 using QuickMCP.Extensions;
+using QuickMCP.Server;
 using Spectre.Console;
 using Spectre.Console.Cli;
 using Vertical.SpectreLogger;
@@ -67,8 +70,10 @@ public class ServerCommand : AsyncCommand<ServerCommandSettings>
             var hostBuilder = WebApplication.CreateBuilder();
 
             var mcpBuilder = hostBuilder.Services
+                .AddTransient<RequestHeaderLoggingService>()
+                .AddHttpContextAccessor()
                 .AddMcpServer()
-                .WithHttpTransport()
+                .WithHttpTransport(options => options.Stateless = true)
                 .WithQuickMCP(mcpServerInfo);
 
             hostBuilder.Logging.SetMinimumLevel(logLevel).AddSpectreConsole(config =>
@@ -78,6 +83,14 @@ public class ServerCommand : AsyncCommand<ServerCommandSettings>
 
 
             var app = hostBuilder.Build();
+
+            app.Use(async (context, next) =>
+            {
+                var loggerService = context.RequestServices.GetRequiredService<RequestHeaderLoggingService>();
+                var token = loggerService.GetToken();
+                await next();
+            });
+
             app.MapMcp();
 
             if (settings.EnableLogging == true)

@@ -32,8 +32,7 @@ public static class AuthenticatorFactory
     /// <param name="factory">A function that creates an instance of <see cref="IAuthenticator"/> from a dictionary of settings.</param>
     /// <exception cref="ArgumentNullException">Thrown when the provided type or factory is null.</exception>
     /// <exception cref="ArgumentException">Thrown when the type is an empty string.</exception>
-    public static void Register(string type, Func<Dictionary<string, string?>, IAuthenticator> factory,
-        AuthenticatorMetadata? metadata = null)
+    public static void Register(string type, Func<Dictionary<string, string?>, IAuthenticator> factory, AuthenticatorMetadata? metadata = null)
     {
         AvailableAuthenticators[type] = factory;
         if (metadata != null)
@@ -65,8 +64,7 @@ public static class AuthenticatorFactory
             // "oauth2" => CreateOAuth2Authenticator(config.Settings),
             // "apiKey" => CreateApiKeyAuthenticator(config.Settings),
             // "customHeader" => CreateCustomHeaderAuthenticator(config.Settings),
-            _ => TryFindImplementation(config.Type, config.Settings) ?? throw new ArgumentException(
-                $"Unsupported authentication type: {config.Type}. Supported types are: bearer, basic, oauth2, apiKey, customHeader")
+            _ => TryFindImplementation(config.Type, config.Settings) ?? throw new ArgumentException($"Unsupported authentication type: {config.Type}. Supported types are: bearer, basic, oauth2, apiKey, customHeader")
         };
     }
 
@@ -79,7 +77,7 @@ public static class AuthenticatorFactory
     }
 
 
-   
+
 
     public static List<AuthenticatorMetadata> GetAvailableAuthenticators()
     {
