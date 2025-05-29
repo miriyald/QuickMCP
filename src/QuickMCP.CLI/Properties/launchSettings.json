@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "QuickMCP.CLI": {
-      "commandName": "Project",
-      "commandLineArgs": "serve, \"-c\", \"C:\\Working\\Edfx\\edfx-api-mcp\\tessera\\tessera-mcp-config.json\""
-    }
-  }
-}
