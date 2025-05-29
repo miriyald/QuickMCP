@@ -67,9 +67,9 @@ public class ServerCommand : AsyncCommand<ServerCommandSettings>
             var hostBuilder = WebApplication.CreateBuilder();
 
             var mcpBuilder = hostBuilder.Services
-                .AddMcpServer()
-                .WithHttpTransport()
-                .WithQuickMCP(mcpServerInfo);
+                                        .AddMcpServer()
+                                        .WithHttpTransport()
+                                        .WithQuickMCP(mcpServerInfo);
 
             hostBuilder.Logging.SetMinimumLevel(logLevel).AddSpectreConsole(config =>
             {
@@ -93,6 +93,11 @@ public class ServerCommand : AsyncCommand<ServerCommandSettings>
                 AnsiConsole.MarkupLine($"[bold]Using STDIO transport...[/]");
 
             var hostBuilder = Host.CreateApplicationBuilder();
+
+            var mcpBuilder = hostBuilder.Services
+                                        .AddMcpServer()
+                                        .WithQuickMCP(mcpServerInfo)
+                                        .WithStdioServerTransport();
 
             hostBuilder.Logging.SetMinimumLevel(logLevel).AddSpectreConsole(config =>
             {
