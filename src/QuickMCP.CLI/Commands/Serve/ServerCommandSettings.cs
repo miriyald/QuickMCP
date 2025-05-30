@@ -72,7 +72,8 @@ public class ServerCommandSettings : CommandSettings
             ApiBaseUrl = ApiBaseUrl,
             ApiSpecPath = SpecPath,
             ServerName = ServerId,
-            ApiSpecUrl = SpecUrl
+            ApiSpecUrl = SpecUrl,
+            HostProtocol= HostProtocol
         };
     }
 }
