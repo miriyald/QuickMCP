@@ -1,6 +1,5 @@
 using System.ComponentModel;
 using System.Text.Json;
-using QuickMCP.Abstractions;
 using QuickMCP.Builders;
 using QuickMCP.Helpers;
 using QuickMCP.Types;
@@ -10,7 +9,7 @@ using Spectre.Console.Cli;
 namespace QuickMCP.CLI.Commands.Add;
 
 [Description("Add/Install a new server to directly use with commandline.")]
-public class AddServerCommand:AsyncCommand<AddServerSettings>
+public class AddServerCommand : AsyncCommand<AddServerSettings>
 {
     public override async Task<int> ExecuteAsync(CommandContext context, AddServerSettings settings)
     {
@@ -18,10 +17,8 @@ public class AddServerCommand:AsyncCommand<AddServerSettings>
 
         AnsiConsole.MarkupLine($"[bold]Verifying MCP server configuration file:[/] {configFile}");
 
-        IMcpServerInfoBuilder? infoBuilder = null;
-
         var info = await McpServerInfoBuilder.FromConfig(configFile).BuildAsync();
-        if(info.Tools.Count ==0)
+        if (info.Tools.Count == 0)
         {
             AnsiConsole.MarkupLine("[red]No tools found in configuration file.[/]");
             return 1;
@@ -40,10 +37,10 @@ public class AddServerCommand:AsyncCommand<AddServerSettings>
             }
         }
         Directory.CreateDirectory(serverFolder);
-        
+
         //Copy Configuration File
         File.Copy(configFile, Path.Combine(serverFolder, "config.json"));
-        
+
         //Copy Metadata
         if (!string.IsNullOrEmpty(info.BuilderConfig.MetadataFile))
         {
@@ -51,7 +48,7 @@ public class AddServerCommand:AsyncCommand<AddServerSettings>
             var fileName = Path.GetFileName(info.BuilderConfig.MetadataFile);
             File.Copy(filePath, Path.Combine(serverFolder, fileName));
         }
-        
+
         //Copy Spec
         if (!string.IsNullOrEmpty(info.BuilderConfig.ApiSpecPath))
         {
@@ -60,7 +57,7 @@ public class AddServerCommand:AsyncCommand<AddServerSettings>
             File.Copy(filePath, Path.Combine(serverFolder, fileName));
         }
         //Copy Serve Info File
-        
+
         var serverInfoFile = Path.Combine(serverFolder, "server_info.json");
         var serverInfo = new ServerConfiguration()
         {
@@ -71,7 +68,7 @@ public class AddServerCommand:AsyncCommand<AddServerSettings>
 
         var serverInfoContent = JsonSerializer.Serialize(serverInfo, QuickMcpJsonSerializerContext.Default.ServerConfiguration);
         await File.WriteAllTextAsync(serverInfoFile, serverInfoContent);
-        
+
         AnsiConsole.MarkupLine($"[green]Server `{serverId}` added successfully.[/]");
         return 0;
     }
