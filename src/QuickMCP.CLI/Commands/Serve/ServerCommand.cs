@@ -2,6 +2,7 @@
 using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.AI;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -219,7 +220,176 @@ public class ServerCommand : AsyncCommand<ServerCommandSettings>
         }
     }
 
-    public  async Task RunHttpServerAsync(McpServerInfo mcpServerInfo,
+
+    [McpServerPromptType]
+    private class PromptsRegistry
+    {
+        public static IReadOnlyDictionary<string, QuickMCP.Types.Prompt>? ApiPrompts
+        {
+            get;
+            set;
+        }
+
+        public static IReadOnlyDictionary<string, ExtendedPrompt>? ExtendedPrompts
+        {
+            get;
+            set;
+        }
+
+
+        [McpServerPrompt(Name = "complex_prompt"), Description("A prompt with arguments")]
+        public static IEnumerable<ChatMessage> GetApiPrompt()
+        {
+            return [new ChatMessage(ChatRole.Assistant, "I understand. You've provided a complex prompt with temperature and style arguments. How would you like me to proceed?")];
+        }
+
+
+        internal static async ValueTask<ListPromptsResult> GetList(RequestContext<ListPromptsRequestParams> context, CancellationToken token)
+        {
+            var allPrompts_ = BuildPrompts();
+            return new ListPromptsResult
+            {
+                Prompts = allPrompts_ ?? new List<ModelContextProtocol.Protocol.Prompt>()
+            };
+        }
+
+        private static List<ModelContextProtocol.Protocol.Prompt> BuildPrompts()
+        {
+            var allPrompts = new List<ModelContextProtocol.Protocol.Prompt>();
+            if (ApiPrompts != null)
+            {
+                foreach (var kvp in ApiPrompts)
+                {
+                    allPrompts.Add(new ModelContextProtocol.Protocol.Prompt
+                    {
+                        Name = kvp.Key,
+                        Description = kvp.Value.Description ?? "No description available."
+                    });
+                }
+            }
+            if (ExtendedPrompts != null)
+            {
+                foreach (var kvp in ExtendedPrompts)
+                {
+                    var prompt = kvp.Value;
+                    allPrompts.Add(new ModelContextProtocol.Protocol.Prompt
+                    {
+                        Name = prompt.Name,
+                        Description = prompt.Description ?? "No description available.",
+                        Arguments = prompt.Arguments?.Select(arg => new PromptArgument
+                        {
+                            Name = arg.Name,
+                            Description = arg.Description ?? "No description available.",
+                            Required = arg.Required
+                        }).ToList(),
+                    });
+                }
+            }
+            return allPrompts;
+        }
+
+        internal static async ValueTask<GetPromptResult> GetPrompt(RequestContext<GetPromptRequestParams> request, CancellationToken token)
+        {
+
+            var name = request.Params.Name;
+
+            if (ApiPrompts == null || !ApiPrompts.ContainsKey(name))
+            {
+                if (ExtendedPrompts == null || !ExtendedPrompts.ContainsKey(name))
+                {
+                    return new GetPromptResult()
+                    {
+                        Messages = new List<PromptMessage>() { }
+                    };
+                }
+                var arguments = request.Params.Arguments != null
+                    ? new Dictionary<string, JsonElement>(request.Params.Arguments)
+                    : new Dictionary<string, JsonElement>();
+                return GetExtendedPrompt(name, arguments);
+            }
+            return GetApiPrompt(name);
+        }
+
+        private static GetPromptResult GetExtendedPrompt(string name, Dictionary<string, JsonElement> arguments)
+        {
+            if (ExtendedPrompts == null || !ExtendedPrompts.ContainsKey(name))
+            {
+                return new GetPromptResult
+                {
+                    Messages = new List<PromptMessage>()
+                };
+            }
+
+            var prompt = ExtendedPrompts[name];
+            var messages = new List<PromptMessage>();
+
+            if (prompt.Messages != null)
+            {
+                foreach (var msg in prompt.Messages)
+                {
+                    var messageText = msg.Content.Text;
+                    if (prompt.Arguments != null && prompt.Arguments.Count > 0)
+                    {
+                        foreach (var arg in prompt.Arguments)
+                        {
+                            if (arguments.ContainsKey(arg.Name))
+                            {
+                                var argValue = arguments[arg.Name].ToString();
+                                messageText = messageText?.Replace($"{{{arg.Name}}}", argValue);
+                            }
+                        }
+                    }
+                    var newMsg = new PromptMessage
+                    {
+                        Role = msg.Role,
+                        Content = new Content
+                        {
+                            Type = msg.Content.Type,
+                            Text = messageText
+                        }
+                    };
+
+
+
+                    messages.Add(newMsg);
+                }
+            }
+            return new GetPromptResult
+            {
+                Messages = messages
+            };
+        }
+
+        private static GetPromptResult GetApiPrompt(string name)
+        {
+            List<PromptMessage> messages = [];
+            var prompt = ApiPrompts[name];
+
+            if (prompt == null)
+            {
+                throw new KeyNotFoundException($"Prompt '{name}' not found.");
+            }
+
+
+            messages.Add(new PromptMessage()
+            {
+                Role = Role.User,
+                Content = new Content()
+                {
+                    Type = "text",
+                    Text = prompt.Content
+                }
+            });
+
+            return new GetPromptResult()
+            {
+                Messages = messages
+            };
+        }
+    }
+
+
+    public async Task RunHttpServerAsync(McpServerInfo mcpServerInfo,
                                             string? configFile,
                                             LogLevel logLevel,
                                             bool enableLogging)
@@ -249,7 +419,17 @@ public class ServerCommand : AsyncCommand<ServerCommandSettings>
         if (haveResources)
         {
             mcpBuilder = mcpBuilder.WithResources<ResourceRegistry>()
-                                    .WithListResourcesHandler(ResourceRegistry.GetList);
+                                   .WithListResourcesHandler(ResourceRegistry.GetList);
+        }
+
+        var havePrompts = mcpServerInfo.Prompts.Count > 0 || mcpServerInfo.BuilderConfig.ExternalResources?.Count > 0;
+        if (havePrompts)
+        {
+            PromptsRegistry.ApiPrompts = mcpServerInfo.Prompts;
+            PromptsRegistry.ExtendedPrompts = mcpServerInfo.BuilderConfig.ExtendedPrompts?.ToDictionary(p => p.Name, p => p) ?? new Dictionary<string, ExtendedPrompt>();
+            mcpBuilder = mcpBuilder.WithListPromptsHandler(PromptsRegistry.GetList)
+                                   .WithGetPromptHandler(PromptsRegistry.GetPrompt);
+
         }
 
         hostBuilder.Logging.SetMinimumLevel(logLevel).AddSpectreConsole(config =>
@@ -267,7 +447,7 @@ public class ServerCommand : AsyncCommand<ServerCommandSettings>
         await app.RunAsync();
     }
 
-    public  async Task RunStdioServerAsync(McpServerInfo mcpServerInfo,
+    public async Task RunStdioServerAsync(McpServerInfo mcpServerInfo,
                                             string? configFile,
                                             LogLevel logLevel,
                                             bool enableLogging)
@@ -301,7 +481,17 @@ public class ServerCommand : AsyncCommand<ServerCommandSettings>
         if (haveResources)
         {
             mcpBuilder = mcpBuilder.WithResources<ResourceRegistry>()
-                                    .WithListResourcesHandler(ResourceRegistry.GetList);
+                                   .WithListResourcesHandler(ResourceRegistry.GetList);
+        }
+
+        var havePrompts = mcpServerInfo.Prompts.Count > 0 || mcpServerInfo.BuilderConfig.ExternalResources?.Count > 0;
+        if (havePrompts)
+        {
+            PromptsRegistry.ApiPrompts = mcpServerInfo.Prompts;
+            PromptsRegistry.ExtendedPrompts = mcpServerInfo.BuilderConfig.ExtendedPrompts?.ToDictionary(p => p.Name, p => p) ?? new Dictionary<string, ExtendedPrompt>();
+            mcpBuilder = mcpBuilder.WithListPromptsHandler(PromptsRegistry.GetList)
+                                   .WithGetPromptHandler(PromptsRegistry.GetPrompt);
+
         }
 
         hostBuilder.Logging.SetMinimumLevel(logLevel).AddSpectreConsole(config =>
