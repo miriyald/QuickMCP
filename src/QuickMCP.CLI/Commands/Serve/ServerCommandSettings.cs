@@ -60,8 +60,6 @@ public class ServerCommandSettings : CommandSettings
         if (!string.IsNullOrEmpty(SpecPath) && !File.Exists(SpecPath) )
             return ValidationResult.Error($"The specification file {SpecPath} does not exist.");
         
-        
-        
         return base.Validate();
     }
 

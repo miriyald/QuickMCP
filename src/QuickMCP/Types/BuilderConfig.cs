@@ -97,6 +97,12 @@ public class BuilderConfig
     /// </summary>
     [JsonPropertyName("externalResources")]
     public List<Resource>? ExternalResources { get; set; }
+    
+    /// <summary>
+    /// List of External Resources to be included
+    /// </summary>
+    [JsonPropertyName("externalResourcesRoot")]
+    public string? ExternalResourcesRoot { get; set; }
 
     /// <summary>
     /// List of External Prompts to be included
