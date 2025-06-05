@@ -54,6 +54,11 @@ public class BuildConfigCommandSettings : BuildCommandSettings
     [Description("Skip the authentication configuration at the end of build.")]
     [CommandOption("--skip-auth-config")]
     public bool? SkipAuthConfig { get; set; }
+    
+    
+    [Description("Host Protocol.STDIO or HTTP.")]
+    [CommandOption("-h|--host-protocol")]
+    public string? HostProtocol { get; set; }
 
     public override ValidationResult Validate()
     {
@@ -80,6 +85,7 @@ public class BuildConfigCommandSettings : BuildCommandSettings
             ApiSpecPath = SpecPath,
             ServerName = ServerName,
             ApiSpecUrl = SpecUrl,
+            HostProtocol = HostProtocol,
             ExcludedPaths = this.ExcludePaths?.SelectMany(s => s.Split(',')).ToList(),
             IncludedPaths = this.OnlyForPaths?.SelectMany(s => s.Split(',')).ToList()
         };

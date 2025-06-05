@@ -3,6 +3,7 @@ using QuickMCP.Abstractions;
 using QuickMCP.Helpers;
 using QuickMCP.Types;
 using Microsoft.Extensions.Logging;
+using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 using Microsoft.OpenApi.Readers;
 using Newtonsoft.Json;
@@ -171,7 +172,11 @@ public class OpenApiMcpServerInfoBuilder : HttpMcpServerInfoBuilder
 #endif
 
             fileContent = ConvertToOpenApi30Json(filePath,fileContent);
-            var reader = new OpenApiStringReader();
+            var reader = new OpenApiStringReader(new OpenApiReaderSettings()
+            {
+                
+            });
+            
             var result = reader.Read(fileContent, out var diagnostic);
 
             if (diagnostic.Errors.Count > 0)
@@ -573,7 +578,12 @@ public class OpenApiMcpServerInfoBuilder : HttpMcpServerInfoBuilder
             {
                 if (enumValue != null)
                 {
-                    enumArray.Add(enumValue.ToString());
+                    if (enumValue is OpenApiString stringValue)
+                    {
+                        enumArray.Add(stringValue.Value);
+                    }
+                    else
+                        enumArray.Add(enumValue.ToString());
                 }
             }
 
