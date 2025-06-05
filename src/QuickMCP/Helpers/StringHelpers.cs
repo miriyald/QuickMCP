@@ -4,6 +4,7 @@ namespace QuickMCP.Helpers;
 
 public static class StringHelpers
 {
+    public const int MaxResourceNameLength = 50;
     public static string SingularizeResource(string resource)
     {
         if (resource.EndsWith("ies"))
@@ -24,7 +25,7 @@ public static class StringHelpers
     public static string SanitizeName(string name)
     {
         var sanitized = Regex.Replace(name, @"[^a-zA-Z0-9_-]", "_");
-        return sanitized.Length > 64 ? sanitized[..64] : sanitized;
+        return sanitized.Length > MaxResourceNameLength ? sanitized[..MaxResourceNameLength] : sanitized;
     }
 
     public static string SanitizeToolName(string name, string? serverPrefix = null)
@@ -36,29 +37,29 @@ public static class StringHelpers
         }
         return SanitizeName(name);
     }
-    
+
     public static string? SanitizeServerName(string? name)
     {
-        if(string.IsNullOrEmpty(name))
+        if (string.IsNullOrEmpty(name))
             return null;
         string sanitized = RemoveInvalidPathCharacters(name);
         return ConvertToCamelCase(sanitized);
     }
-    
+
     private static string RemoveInvalidPathCharacters(string name)
     {
         var invalidChars = Path.GetInvalidFileNameChars();
         return new string(name.Where(c => !invalidChars.Contains(c)).ToArray());
     }
-    
+
     private static string ConvertToCamelCase(string name)
     {
         if (string.IsNullOrEmpty(name)) return name;
-    
+
         var words = name.Split(new[] { '_', '-', ' ' }, StringSplitOptions.RemoveEmptyEntries);
-        var camelCased = string.Concat(words.Select((word, index) => 
+        var camelCased = string.Concat(words.Select((word, index) =>
             index == 0 ? word.ToLowerInvariant() : char.ToUpperInvariant(word[0]) + word.Substring(1).ToLowerInvariant()));
-    
+
         return camelCased;
     }
 }
