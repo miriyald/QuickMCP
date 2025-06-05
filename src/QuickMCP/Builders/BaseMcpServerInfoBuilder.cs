@@ -381,9 +381,14 @@ public abstract class BaseMcpServerInfoBuilder : IMcpServerInfoBuilder
         string description,
         ToolMetadata? metadata = null)
     {
-        // Add server name as prefix
-        var prefixedName = $"{ServerName}_{name}";
-        var safeName = StringHelpers.SanitizeToolName(prefixedName);
+
+        var safeName = StringHelpers.SanitizeToolName(name);
+
+        if (RegisteredTools.ContainsKey(safeName))
+        {
+            safeName = StringHelpers.SanitizeToolName($"{RegisteredTools.Count + 1}_{safeName}");
+        }
+
 
         // Enhance description with server context
         var enhancedDescription = $"[{ServerName}] {description}";
@@ -420,6 +425,7 @@ public abstract class BaseMcpServerInfoBuilder : IMcpServerInfoBuilder
         function.Metadata = finalMetadata;
 
         UpdateMetadata(function);
+
         RegisteredTools[safeName] = function;
     }
 

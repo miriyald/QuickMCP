@@ -3,7 +3,6 @@ using QuickMCP.Abstractions;
 using QuickMCP.Helpers;
 using QuickMCP.Types;
 using Microsoft.Extensions.Logging;
-using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 using Microsoft.OpenApi.Readers;
 using Newtonsoft.Json;
@@ -131,8 +130,8 @@ public class OpenApiMcpServerInfoBuilder : HttpMcpServerInfoBuilder
             }
 
             var fileContent = await httpResponse.Content.ReadAsStringAsync();
-            
-            fileContent = ConvertToOpenApi30Json(url,fileContent);
+
+            fileContent = ConvertToOpenApi30Json(url, fileContent);
             var result = new OpenApiStringReader().Read(fileContent, out var diagnostic);
 
 
@@ -171,12 +170,8 @@ public class OpenApiMcpServerInfoBuilder : HttpMcpServerInfoBuilder
             var fileContent = await File.ReadAllTextAsync(filePath);
 #endif
 
-            fileContent = ConvertToOpenApi30Json(filePath,fileContent);
-            var reader = new OpenApiStringReader(new OpenApiReaderSettings()
-            {
-                
-            });
-            
+            fileContent = ConvertToOpenApi30Json(filePath, fileContent);
+            var reader = new OpenApiStringReader();
             var result = reader.Read(fileContent, out var diagnostic);
 
             if (diagnostic.Errors.Count > 0)
@@ -192,8 +187,8 @@ public class OpenApiMcpServerInfoBuilder : HttpMcpServerInfoBuilder
         }
         catch (Exception ex)
         {
-            
-            
+
+
             Logger?.LogError(ex, "Failed to load OpenAPI spec from file: {FilePath}", filePath);
             return null;
         }
@@ -407,8 +402,18 @@ public class OpenApiMcpServerInfoBuilder : HttpMcpServerInfoBuilder
                 var op = operation.Value;
 
                 // Generate operation ID
-                var opId = op.OperationId ??
-                           $"{method}_{path.Key.Replace("/", "_").Replace("{", "").Replace("}", "")}";
+                var opId = op.OperationId;
+
+                if (string.IsNullOrEmpty(opId))
+                {
+                    // Get the Last segment of the path and sanitize it
+                    var pathSegments = path.Key.Split('/').Where(s => !string.IsNullOrEmpty(s)).ToArray();
+                    var lastSegment = pathSegments.Length > 0 ? pathSegments[pathSegments.Length - 1] : "";
+                    opId = $"{method}_{lastSegment}".Replace("/", "_").Replace("{", "").Replace("}", "");
+                }
+
+
+
                 var sanitizedOpId = StringHelpers.SanitizeToolName(opId);
 
                 // Extract parameters
@@ -578,12 +583,7 @@ public class OpenApiMcpServerInfoBuilder : HttpMcpServerInfoBuilder
             {
                 if (enumValue != null)
                 {
-                    if (enumValue is OpenApiString stringValue)
-                    {
-                        enumArray.Add(stringValue.Value);
-                    }
-                    else
-                        enumArray.Add(enumValue.ToString());
+                    enumArray.Add(enumValue.ToString());
                 }
             }
 
