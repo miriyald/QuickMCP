@@ -1,5 +1,4 @@
 ﻿using System.Text.Json;
-using ModelContextProtocol.Protocol;
 using QuickMCP.Abstractions;
 using QuickMCP.Authentication;
 using QuickMCP.Http;
