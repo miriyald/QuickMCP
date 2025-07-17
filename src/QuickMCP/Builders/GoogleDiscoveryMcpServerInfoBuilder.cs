@@ -135,11 +135,11 @@ public class GoogleDiscoveryMcpServerInfoBuilder : HttpMcpServerInfoBuilder
         {
             Logger?.LogInformation("Loading Google Discovery spec from file: {FilePath}", filePath);
 
-            #if NETSTANDARD2_0_OR_GREATER
+#if NETSTANDARD2_0_OR_GREATER
             var fileContent = File.ReadAllText(filePath);
-            #else
+#else
             var fileContent = await File.ReadAllTextAsync(filePath);
-            #endif  
+#endif
             var document = JsonDocument.Parse(fileContent);
 
             Logger?.LogInformation("Successfully loaded Google Discovery spec from file");
@@ -156,7 +156,7 @@ public class GoogleDiscoveryMcpServerInfoBuilder : HttpMcpServerInfoBuilder
     {
         try
         {
-           
+
             InitializeFromConfig(config);
             // Process Discovery URL if provided
             if (!string.IsNullOrEmpty(config.ApiSpecUrl))
@@ -168,7 +168,7 @@ public class GoogleDiscoveryMcpServerInfoBuilder : HttpMcpServerInfoBuilder
                 _discoveryDocument = await LoadDiscoveryFromFileAsync(config.ApiSpecPath);
             }
             else throw new ArgumentException("No API specification URL or path provided");
-            
+
             if (_discoveryDocument != null)
             {
                 await ProcessDiscoveryDocumentAsync(_discoveryDocument);
@@ -185,7 +185,7 @@ public class GoogleDiscoveryMcpServerInfoBuilder : HttpMcpServerInfoBuilder
                     GeneratePrompts(_discoveryDocument);
                 }
             }
-           
+
 
             Logger?.LogInformation("Successfully processed configuration");
 
@@ -209,10 +209,10 @@ public class GoogleDiscoveryMcpServerInfoBuilder : HttpMcpServerInfoBuilder
             string apiName = root.GetProperty("name").GetString() ?? "GoogleAPI";
             string apiVersion = root.GetProperty("version").GetString() ?? "v1";
             string baseUrl = root.GetProperty("baseUrl").GetString() ?? "https://api.example.com";
-            var description = root.TryGetProperty("description", out var desc) ? desc.GetString():null;
-            
+            var description = root.TryGetProperty("description", out var desc) ? desc.GetString() : null;
+
             // Update server description with API info
-            
+
             ServerDescription = description ?? $"Google API: {apiName} ({apiVersion})";
 
             var schemas = root.GetProperty("schemas");
@@ -220,7 +220,7 @@ public class GoogleDiscoveryMcpServerInfoBuilder : HttpMcpServerInfoBuilder
             if (root.TryGetProperty("resources", out var resources))
             {
                 var operationsInfo = ExtractOperationsInfo(resources, baseUrl, schemas);
-                
+
                 // Apply filters
                 var filteredOps = FilterOperations(operationsInfo);
 
@@ -261,7 +261,7 @@ public class GoogleDiscoveryMcpServerInfoBuilder : HttpMcpServerInfoBuilder
         }
     }
 
-    private Dictionary<string, OperationInfo> ExtractOperationsInfo(JsonElement resources, string baseUrl,JsonElement schemas)
+    private Dictionary<string, OperationInfo> ExtractOperationsInfo(JsonElement resources, string baseUrl, JsonElement schemas)
     {
         var operationsInfo = new Dictionary<string, OperationInfo>();
 
@@ -272,7 +272,7 @@ public class GoogleDiscoveryMcpServerInfoBuilder : HttpMcpServerInfoBuilder
             if (resource.Value.TryGetProperty("methods", out var methods))
             {
                 // Process methods directly in this resource
-                ProcessMethods(methods, resourceName, "", baseUrl, operationsInfo,schemas);
+                ProcessMethods(methods, resourceName, "", baseUrl, operationsInfo, schemas);
             }
 
             // Process sub-resources recursively
@@ -285,7 +285,7 @@ public class GoogleDiscoveryMcpServerInfoBuilder : HttpMcpServerInfoBuilder
 
                     if (subResource.Value.TryGetProperty("methods", out var subMethods))
                     {
-                        ProcessMethods(subMethods, resourceName, subResourceName, baseUrl, operationsInfo,schemas);
+                        ProcessMethods(subMethods, resourceName, subResourceName, baseUrl, operationsInfo, schemas);
                     }
                 }
             }
@@ -311,7 +311,7 @@ public class GoogleDiscoveryMcpServerInfoBuilder : HttpMcpServerInfoBuilder
 
             string httpMethod = method.Value.GetProperty("httpMethod").GetString() ?? "GET";
             string path = method.Value.GetProperty("path").GetString() ?? "";
-            path = path.Contains("+") ? method.Value.GetProperty("flatPath").GetString()?? path : path;
+            path = path.Contains("+") ? method.Value.GetProperty("flatPath").GetString() ?? path : path;
             string description = method.Value.TryGetProperty("description", out var desc)
                 ? desc.GetString() ?? opId
                 : opId;
@@ -393,7 +393,7 @@ public class GoogleDiscoveryMcpServerInfoBuilder : HttpMcpServerInfoBuilder
                     Description = "Request body"
                 });
             }
-            
+
             JsonNode? responseSchema = null;
             // Process request body if present
             if (method.Value.TryGetProperty("response", out var responseProp))
@@ -498,7 +498,7 @@ public class GoogleDiscoveryMcpServerInfoBuilder : HttpMcpServerInfoBuilder
             InputSchema = schema,
             Tags = tags
         };
-      
+
 
         if (info.ResponseSchema != null)
         {
@@ -690,7 +690,7 @@ public class GoogleDiscoveryMcpServerInfoBuilder : HttpMcpServerInfoBuilder
                     {
                         string methodName = method.Name;
                         string opId = $"{resourceName}.{methodName}";
-                        string safeOpId = StringHelpers.SanitizeToolName($"{ServerName}_{opId}");
+                        string safeOpId = StringHelpers.SanitizeToolName(opId);
 
                         string httpMethod = method.Value.GetProperty("httpMethod").GetString() ?? "GET";
                         string path = method.Value.TryGetProperty("path", out var pathProp)
@@ -743,7 +743,7 @@ public class GoogleDiscoveryMcpServerInfoBuilder : HttpMcpServerInfoBuilder
                             {
                                 string methodName = method.Name;
                                 string opId = $"{resourceName}.{subResourceName}.{methodName}";
-                                string safeOpId = StringHelpers.SanitizeToolName($"{ServerName}_{opId}");
+                                string safeOpId = StringHelpers.SanitizeToolName(opId);
 
                                 string httpMethod = method.Value.GetProperty("httpMethod").GetString() ?? "GET";
                                 string path = method.Value.TryGetProperty("path", out var pathProp)
@@ -813,7 +813,7 @@ public class GoogleDiscoveryMcpServerInfoBuilder : HttpMcpServerInfoBuilder
                 {
                     string methodName = method.Name;
                     string opId = $"{resourceName}.{methodName}";
-                    string safeOpId = StringHelpers.SanitizeToolName($"{ServerName}_{opId}");
+                    string safeOpId = StringHelpers.SanitizeToolName(opId);
 
                     string description = method.Value.TryGetProperty("description", out var methodDesc)
                         ? methodDesc.GetString() ?? methodName
@@ -907,7 +907,7 @@ public class GoogleDiscoveryMcpServerInfoBuilder : HttpMcpServerInfoBuilder
                         {
                             string methodName = method.Name;
                             string opId = $"{resourceName}.{subResourceName}.{methodName}";
-                            string safeOpId = StringHelpers.SanitizeToolName($"{ServerName}_{opId}");
+                            string safeOpId = StringHelpers.SanitizeToolName(opId);
 
                             string description = method.Value.TryGetProperty("description", out var methodDesc)
                                 ? methodDesc.GetString() ?? methodName

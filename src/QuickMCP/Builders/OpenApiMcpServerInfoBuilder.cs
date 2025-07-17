@@ -131,8 +131,8 @@ public class OpenApiMcpServerInfoBuilder : HttpMcpServerInfoBuilder
             }
 
             var fileContent = await httpResponse.Content.ReadAsStringAsync();
-            
-            fileContent = ConvertToOpenApi30Json(url,fileContent);
+
+            fileContent = ConvertToOpenApi30Json(url, fileContent);
             var result = new OpenApiStringReader().Read(fileContent, out var diagnostic);
 
 
@@ -171,12 +171,12 @@ public class OpenApiMcpServerInfoBuilder : HttpMcpServerInfoBuilder
             var fileContent = await File.ReadAllTextAsync(filePath);
 #endif
 
-            fileContent = ConvertToOpenApi30Json(filePath,fileContent);
+            fileContent = ConvertToOpenApi30Json(filePath, fileContent);
             var reader = new OpenApiStringReader(new OpenApiReaderSettings()
             {
-                
+
             });
-            
+
             var result = reader.Read(fileContent, out var diagnostic);
 
             if (diagnostic.Errors.Count > 0)
@@ -192,8 +192,8 @@ public class OpenApiMcpServerInfoBuilder : HttpMcpServerInfoBuilder
         }
         catch (Exception ex)
         {
-            
-            
+
+
             Logger?.LogError(ex, "Failed to load OpenAPI spec from file: {FilePath}", filePath);
             return null;
         }
@@ -583,7 +583,9 @@ public class OpenApiMcpServerInfoBuilder : HttpMcpServerInfoBuilder
                         enumArray.Add(stringValue.Value);
                     }
                     else
+                    {
                         enumArray.Add(enumValue.ToString());
+                    }
                 }
             }
 
