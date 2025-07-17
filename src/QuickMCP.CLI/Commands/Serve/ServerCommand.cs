@@ -1,13 +1,8 @@
 ﻿using System.ComponentModel;
-using System.Text;
-using System.Text.Json;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.Extensions.AI;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using ModelContextProtocol.Protocol;
-using ModelContextProtocol.Server;
 using QuickMCP.Abstractions;
 using QuickMCP.Builders;
 using QuickMCP.Extensions;
@@ -130,38 +125,7 @@ public class ServerCommand : AsyncCommand<ServerCommandSettings>
             .WithQuickMCP(mcpServerInfo)
             .WithStdioServerTransport();
 
-        // var haveResources = false;
-        // if (mcpServerInfo.Resources.Count > 0)
-        // {
-        //     ResourceRegistry.ApiResources = mcpServerInfo.Resources;
-        //     mcpBuilder = mcpBuilder.WithResources<ResourceRegistry>()
-        //                             .WithListResourcesHandler(ResourceRegistry.GetList);
-        //     haveResources = true;
-        // }
-        //
-        // if (mcpServerInfo.BuilderConfig.ExternalResources?.Count > 0)
-        // {
-        //     ResourceRegistry.Root = Path.GetDirectoryName(configFile);
-        //     ResourceRegistry.ExternalResources = mcpServerInfo.BuilderConfig.ExternalResources?.ToDictionary(r => r.Name, r => r) ?? new Dictionary<string, Resource>();
-        //     haveResources = true;
-        // }
-        //
-        // if (haveResources)
-        // {
-        //     mcpBuilder = mcpBuilder.WithResources<ResourceRegistry>()
-        //                            .WithListResourcesHandler(ResourceRegistry.GetList);
-        // }
-        //
-        // var havePrompts = mcpServerInfo.Prompts.Count > 0 || mcpServerInfo.BuilderConfig.ExternalResources?.Count > 0;
-        // if (havePrompts)
-        // {
-        //     PromptsRegistry.ApiPrompts = mcpServerInfo.Prompts;
-        //     PromptsRegistry.ExtendedPrompts = mcpServerInfo.BuilderConfig.ExtendedPrompts?.ToDictionary(p => p.Name, p => p) ?? new Dictionary<string, ExtendedPrompt>();
-        //     mcpBuilder = mcpBuilder.WithListPromptsHandler(PromptsRegistry.GetList)
-        //                            .WithGetPromptHandler(PromptsRegistry.GetPrompt);
-        //
-        // }
-
+     
         hostBuilder.Logging.SetMinimumLevel(logLevel).AddSpectreConsole(config =>
         {
             config.SetMinimumLevel(logLevel);

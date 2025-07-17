@@ -1,13 +1,8 @@
 ﻿using System.Text.Json;
-using Microsoft.Extensions.Hosting;
 using ModelContextProtocol.Protocol;
 using ModelContextProtocol.Server;
 using QuickMCP.Builders;
 using Shouldly;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using System.Net.Http.Headers;
 using Moq;
 namespace QuickMCP.Tests;
 
