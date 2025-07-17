@@ -71,7 +71,7 @@ public class ServerCommand : AsyncCommand<ServerCommandSettings>
 
         var logLevel = settings.EnableLogging == true ? LogLevel.Debug : LogLevel.None;
 
-        var protocol = (settings.HostProtocol ?? mcpServerInfo.BuilderConfig.HostProtocol)?.ToLower();
+        var protocol = (settings.HostProtocol  ??  mcpServerInfo.BuilderConfig.HostProtocol)?.ToLower();
         if (protocol == "http")
         {
             await RunHttpServerAsync(mcpServerInfo, configFile, logLevel, settings.EnableLogging == true);
@@ -94,7 +94,7 @@ public class ServerCommand : AsyncCommand<ServerCommandSettings>
             .WithHttpTransport()
             .WithQuickMCP(mcpServerInfo);
 
-
+      
         hostBuilder.Logging.SetMinimumLevel(logLevel).AddSpectreConsole(config =>
         {
             config.SetMinimumLevel(logLevel);
@@ -125,6 +125,7 @@ public class ServerCommand : AsyncCommand<ServerCommandSettings>
             .WithQuickMCP(mcpServerInfo)
             .WithStdioServerTransport();
 
+     
         hostBuilder.Logging.SetMinimumLevel(logLevel).AddSpectreConsole(config =>
         {
             config.SetMinimumLevel(logLevel);
